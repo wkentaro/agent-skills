@@ -5,7 +5,7 @@ description: Prepare a conventional branch, write or review a pull/merge request
 
 # Send a pull request
 
-When asked only to write or review a PR/MR title or body, inspect the supplied context, read [BODY.md](BODY.md), and return the copy without changing the repository or forge. Read [MEDIA.md](MEDIA.md) when the body needs screenshots or video.
+When asked only to write or review a PR/MR title or body, inspect the supplied context, read [BODY.md](BODY.md), and return the copy without changing the repository or forge. If evidence is requested, read [MEDIA.md](MEDIA.md) for formatting guidance, use supplied evidence only, and mark unverified evidence as pending. Do not run capture or publishing workflows for a copy-only request.
 
 To send work for review:
 
@@ -26,10 +26,12 @@ To send work for review:
 
 3. Verify that the branch and work are unchanged. Stop if any intended change is uncommitted.
 
-4. Inspect the commits and diff against the default branch. Write a Conventional Commit title under 70 characters, read [BODY.md](BODY.md), and write the body from what the diff cannot explain.
+4. Inspect the commits and diff against the default branch. Write a Conventional Commit title under 70 characters, read [BODY.md](BODY.md), and write the body from what the diff cannot explain. Preserve any existing `<!-- before-and-after:start/end -->` block until the evidence assessment below.
 
 5. Check for an open PR from the current branch. Push with tracking; use `--force-with-lease` only after an intentional history rewrite.
 
-6. Create the PR with `--assignee @me`, or update its title and body, using a temporary `--body-file` and deleting it afterward. Pass each screenshot or video with `--attach` as described in [MEDIA.md](MEDIA.md). A direct user invocation creates a ready PR; an autonomous invocation creates a draft unless the user requested otherwise.
+6. Create a draft PR with `--assignee @me`, or update the existing PR's title and body, using a temporary `--body-file` and deleting it afterward. Keep an existing PR in draft while evidence is pending, using `gh pr ready --undo` if needed.
 
-7. Return the PR URL.
+7. Assess evidence on every PR creation or update, including nonvisual changes, following [MEDIA.md](MEDIA.md). This skill owns the evidence decision, text evidence, verification, and recovery. Invoke the existing `before-and-after` skill for screenshots or recordings that need capturing or publishing; it needs no modifications or new result contract.
+
+8. On verified evidence or an intentional skip, apply the intended readiness: a direct user invocation makes the PR ready with `gh pr ready`; an autonomous invocation leaves a draft unless the user requested otherwise. On failure, leave the PR as a draft and report the missing evidence or blocker with the PR URL. Never merge or approve the PR.
