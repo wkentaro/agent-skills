@@ -4,69 +4,134 @@
     {
       "id": "no-hard-wrap",
       "prompt": "Write the PR description for this change. The repo is github.com/example/pipeline. The branch replaces a dict-based record passed between the parser and the indexer with a frozen dataclass; the conversion happens once at the parser boundary; `timestamp = None` is a sentinel the existing fallback path already handled; the second normalization call was reordered to run before promotion, which is safe because it only reads base fields. The motivation is that issue #200 typed the field `list[Record]` while dicts still flowed through it at runtime. Output only the PR body markdown.",
-      "expected_output": "A short PR body whose every paragraph and list item sits on a single line, with blank lines between blocks and no newline inside any sentence.",
+      "expected_output": "A short PR body with one unwrapped line per paragraph or list item and no forge mutations.",
       "expectations": [
-        "No paragraph or list item contains an internal newline (no hard-wrapping at ~72-100 columns).",
-        "The first sentence states why the change exists (finishing what #200 started), not what the diff shows.",
+        "No paragraph or list item contains an internal newline.",
+        "The first sentence states why the change exists (finishing what #200 started).",
         "The sentinel and the reorder each appear with an explicit safety resolution.",
-        "The body does not enumerate dataclass fields or restate mechanical changes visible in any hunk.",
-        "No `## Summary` header wrapping a single bullet that repeats the lead."
+        "The body does not enumerate fields or recap mechanical changes.",
+        "No redundant Summary heading or unsolicited evidence workflow appears."
       ]
     },
     {
       "id": "necessity-test",
       "prompt": "Review this draft PR description and rewrite it: 'This PR migrates the record type from dict to dataclass. Record is a frozen dataclass with six required fields: path, size, mtime, kind, digest, timestamp. All callers were updated from dict access to attribute access. Function signatures changed from dict to Record. No behavior change intended. This is a large change but please review carefully.' The diff is a mechanical rename sweep across 40 files; the PR finishes work started in #200. Output only the rewritten body.",
-      "expected_output": "A body of a few sentences that keeps only what the diff cannot say and cuts field enumeration, caller-update recap, signature recap, and the apology.",
+      "expected_output": "A few sentences retaining motivation while removing mechanical recaps and apologetic framing.",
       "expectations": [
         "The field enumeration is gone.",
-        "The enumerated recaps ('All callers were updated from dict access to attribute access', 'Function signatures changed from dict to Record') are gone; at most one half-sentence names the sweep's pattern.",
-        "The apology/framing sentence is gone.",
-        "The rewritten body is readable in one breath (roughly five sentences or fewer).",
-        "Every remaining paragraph sits on a single line with no internal newline."
+        "Caller and signature recaps are gone; at most one short phrase names the sweep.",
+        "The apology is gone.",
+        "The body is five sentences or fewer.",
+        "Every paragraph occupies one line."
       ]
     },
     {
       "id": "media-private-repo",
-      "prompt": "You have a local screenshot at /tmp/fix-proof.png that proves a rendering fix, and you are about to open a PR on a private GitHub repository. How do you get the screenshot inline into the PR description? State the route and the exact steps; do not actually run anything.",
-      "expected_output": "Reference the local screenshot in the body and pass it to `gh pr create --attach` so GitHub CLI uploads it and rewrites the reference without committing the binary.",
+      "prompt": "The user directly asks you to send a committed rendering fix for review in a private GitHub repository. A current screenshot exists at /tmp/fix-proof.png and no PR exists. State your evidence and readiness workflow; do not execute anything.",
+      "expected_output": "Create a draft, invoke before-and-after to publish and verify a Preview, and make the PR ready only on success.",
       "expectations": [
-        "The answer does not commit the screenshot to the PR branch.",
-        "The answer puts a relative image reference such as `![Rendering fix](./fix-proof.png)` in the body and passes `/tmp/fix-proof.png` with `gh pr create --attach`.",
-        "The answer says `gh` rewrites the body reference to the uploaded asset.",
-        "The answer does not use curl, raw URLs, an assets branch, or a repository visibility gate."
+        "The PR starts as a draft.",
+        "The answer explicitly invokes before-and-after for visual media while sending-pull-request owns evidence selection and readiness.",
+        "The screenshot is reused if verified current and uploaded with gh --attach, not committed.",
+        "Readiness follows verified evidence, not merely PR creation."
       ]
     },
     {
       "id": "media-existing-pr",
-      "prompt": "A pull request already exists for the current branch. Append /tmp/before.png and /tmp/after.png to its description with useful image alt text; state the exact command, but do not run anything.",
-      "expected_output": "Use `gh pr edit` with one `--attach` flag per image and alt text after each path's `#`.",
+      "prompt": "The user asks you to update an existing ready PR with committed UI changes and current /tmp/before.png and /tmp/after.png screenshots. Its description contains human prose and an old marked evidence block. State the workflow, without executing.",
+      "expected_output": "Keep the PR draft during the update and delegate replacement of stale evidence while preserving unrelated prose.",
       "expectations": [
-        "The command uses `gh pr edit` for the pull request belonging to the current branch.",
-        "The command repeats `--attach` for both files.",
-        "Each attachment uses the `<path>#<image alt text>` form.",
-        "The answer does not replace the existing body or commit either image."
+        "The existing PR is made draft while evidence is pending.",
+        "before-and-after manages replacement of the old marked block.",
+        "Unrelated human prose is preserved during the evidence update.",
+        "The PR becomes ready only after verification succeeds."
       ]
     },
     {
       "id": "media-video",
-      "prompt": "You recorded a 20-second screen capture at /tmp/demo.mp4 showing the fixed interaction, and you are about to open a PR on a public GitHub repository. How do you get the video playing inline in the PR description? State the route and the exact steps; do not actually run anything.",
-      "expected_output": "Pass the video to `gh pr create --attach`; GitHub CLI uploads it and appends an inline player without committing the file.",
+      "prompt": "You are autonomously sending a committed interaction fix for review, with no user request to make the PR ready. A current /tmp/demo.mp4 recording exists. State the evidence and readiness workflow; do not execute.",
+      "expected_output": "Delegate video evidence to before-and-after and retain draft status even after successful verification.",
       "expectations": [
-        "The answer passes `/tmp/demo.mp4` to `gh pr create --attach`.",
-        "The answer says the video renders as a player and takes no alt text.",
-        "The answer does not use image syntax, curl, a raw URL, an orphan branch, or a release asset.",
-        "The answer does not commit the video to the PR branch."
+        "before-and-after is invoked for the recording.",
+        "The recording is attached rather than committed.",
+        "The rendered video is verified.",
+        "The autonomous PR remains draft after success."
       ]
     },
     {
       "id": "media-partial-failure",
-      "prompt": "`gh pr create --attach /tmp/before.png --attach /tmp/after.png` exits nonzero because the second upload failed, but stdout printed a new PR URL. What do you do next? Do not actually run anything.",
-      "expected_output": "Treat the printed PR as created, inspect which attachment landed, and retry only the missing file with `gh pr edit --attach`.",
+      "prompt": "During before-and-after's update of a draft PR, `gh pr edit --attach captures/before.png --attach captures/after.png` exits nonzero. The fetched body confirms the before image uploaded and the after image is still local. Retrying after.png also fails. What happens next? Do not execute.",
+      "expected_output": "Inspect partial success, retry only the missing after image, and report failure while keeping the existing PR draft.",
       "expectations": [
-        "The answer recognizes that the PR was created despite the nonzero exit.",
-        "The answer resolves and inspects the existing PR before retrying.",
-        "The answer retries only `/tmp/after.png` with `gh pr edit --attach`.",
-        "The answer does not rerun `gh pr create` or re-upload `/tmp/before.png`."
+        "Only the missing after image is retried; the successful before attachment is preserved.",
+        "The existing PR is reused instead of creating another.",
+        "The unresolved failure keeps the PR draft.",
+        "The final report identifies missing evidence and includes the PR URL."
+      ]
+    },
+    {
+      "id": "nonvisual-skip",
+      "prompt": "The user directly asks you to send a committed internal variable rename for review. Behavior is unchanged and tests pass; the diff fully explains the change. No screenshots exist. State the workflow without executing.",
+      "expected_output": "Assess evidence in sending-pull-request, intentionally skip it, and make the directly requested PR ready.",
+      "expectations": [
+        "sending-pull-request makes the skip decision without invoking before-and-after for this nonvisual change.",
+        "Evidence is intentionally skipped because it adds nothing beyond the diff and tests.",
+        "No artificial screenshot or browser capture is required.",
+        "The intentional skip allows the directly requested PR to become ready."
+      ]
+    },
+    {
+      "id": "nonvisual-text",
+      "prompt": "The user directly asks you to send a committed CLI fix for review. With the same input, the base command prints `2 files` and the fixed command prints `3 files`; these are captured observations from the relevant revisions. No PR or screenshots exist. State the evidence workflow without executing.",
+      "expected_output": "Write useful before/after CLI text directly in sending-pull-request and gate readiness on its verification.",
+      "expectations": [
+        "sending-pull-request handles CLI text directly without delegating it to before-and-after.",
+        "Evidence uses labeled before/after text with the command or input and observed outputs.",
+        "No browser screenshot or media upload is required for the text.",
+        "Text publication and verification precede ready status."
+      ]
+    },
+    {
+      "id": "capture-failure",
+      "prompt": "The user directly asks you to send a committed visual regression fix for review. No captures exist. Browser authentication prevents obtaining the required after screenshot even after safe recovery attempts. State the workflow without executing.",
+      "expected_output": "Attempt capture through before-and-after, then leave a draft and report the blocker instead of treating the failure as a skip.",
+      "expectations": [
+        "Missing evidence is obtained automatically through before-and-after and its capture tooling.",
+        "The authentication failure is reported as failure, not an intentional skip.",
+        "A draft PR and its URL are returned with the missing after evidence identified.",
+        "The PR is not marked ready."
+      ]
+    },
+    {
+      "id": "copy-only-evidence",
+      "prompt": "Only draft a proposed PR description using an existing before/after image pair. Do not publish anything. Explain briefly how you handle the evidence and missing verification; do not execute.",
+      "expected_output": "Format proposed evidence copy directly, without running capture or publishing workflows, and mark verification pending.",
+      "expectations": [
+        "Proposed evidence is formatted directly without requiring a preparation-only mode from before-and-after.",
+        "No capture, upload, PR edit, branch change, or readiness mutation occurs.",
+        "The proposed body is returned and unverified evidence is marked pending."
+      ]
+    },
+    {
+      "id": "reuse-published-media",
+      "prompt": "The user directly asks you to update a PR introducing a UI layout change. Its existing published screenshot block still proves the full base-to-head change: the latest commit only renames an unrelated internal identifier, and the screenshots have been checked against the current diff. Explain the evidence and readiness workflow without executing.",
+      "expected_output": "Reuse and verify the existing published evidence without recapture or upload, then apply readiness.",
+      "expectations": [
+        "Current published evidence is reused without recapturing or re-uploading.",
+        "The fetched body and rendered evidence are checked before the readiness decision.",
+        "Unrelated PR prose is preserved.",
+        "The directly requested PR becomes ready only after evidence verification."
+      ]
+    },
+    {
+      "id": "media-false-success",
+      "prompt": "You invoked the installed, unchanged before-and-after skill on a draft PR for a rendering fix. It says DONE and the upload command exited zero, but the fetched PR description still contains a local ./captures/after.png reference. Safe retry attempts cannot resolve it. What do you do next? Do not execute.",
+      "expected_output": "Treat the unresolved local reference as failed evidence regardless of the skill's completion message and leave the PR draft.",
+      "expectations": [
+        "sending-pull-request independently verifies the published result instead of trusting DONE or the exit code.",
+        "The unresolved local reference is a failure, not verified evidence or an intentional skip.",
+        "The PR remains draft and the final report includes its URL and missing after evidence.",
+        "The answer does not require modifying before-and-after or adding a status-return contract."
       ]
     }
   ]

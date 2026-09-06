@@ -2,7 +2,7 @@
 
 The job of a PR/MR description is to compress what the reviewer needs to know that **is not visible in the diff**. Apply this test to every sentence.
 
-To embed screenshots or video, read [MEDIA.md](MEDIA.md).
+Read [MEDIA.md](MEDIA.md) to assess and format evidence. `sending-pull-request` owns that decision and text evidence; `before-and-after` handles screenshot and recording workflows.
 
 ## One block, one line
 
