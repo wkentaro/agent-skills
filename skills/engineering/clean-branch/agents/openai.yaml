@@ -1,0 +1,7 @@
+interface:
+  display_name: "Clean Branch"
+  short_description: "Extract a minimal, complete feature branch"
+  default_prompt: "Use $clean-branch to extract the essential feature changes into a fresh branch."
+
+policy:
+  allow_implicit_invocation: true

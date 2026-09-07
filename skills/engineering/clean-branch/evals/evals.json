@@ -1,0 +1,30 @@
+{
+  "skill_name": "clean-branch",
+  "evals": [
+    {
+      "id": "mixed-work-newer-base",
+      "prompt": "Extract only the CSV export feature into a clean branch based on origin/main. For this evaluation, simulate your actions and final handoff without accessing a repository. The source is feature/experiments at S. Its merge base with origin/main is M; origin/main is now at B, which adds a security fix in export.py. One source commit mixes the CSV command with unrelated debug logging in export.py. The index contains required CLI registration plus an unrelated theme change. The working tree has an unstaged CSV escaping fix layered on a staged change in export.py. Untracked test_csv.py is required, while untracked scratch.txt is an experiment. Worktree configuration automatically copies ignored files, including .env. All available CSV and repository checks would pass; no benchmark evidence is available. No commit, push, or PR was requested. Describe what you inspect, how you construct the destination, what you verify, and what your final report can claim.",
+      "expected_output": "A complete CSV-only extraction based on B preserves the security fix and every layer of source state, includes required untracked tests, and reports bounded verification without publication.",
+      "expectations": [
+        "The destination starts at B, while M is used to inspect the source feature diff",
+        "The workflow inspects committed, staged, unstaged, and untracked work and retains CSV integration, escaping, and test_csv.py",
+        "The extraction separates mixed changes and omits debug logging, the theme change, and scratch.txt while preserving B's security fix",
+        "The workflow accounts for automatic worktree copying so .env and unrelated files are not imported",
+        "The source branch HEAD, index, and working files are preserved and checked after extraction",
+        "The workflow checks the complete destination diff including new files and runs CSV and repository checks in the destination without claiming measured performance parity",
+        "The handoff identifies the destination branch, B as base, worktree path, kept and omitted changes, and validation as simulated rather than executed",
+        "The extracted changes remain uncommitted and no push or PR is performed"
+      ]
+    },
+    {
+      "id": "unknown-feature-and-base",
+      "prompt": "Make a clean branch from this work. For this evaluation, simulate only the next action without accessing a repository. There is no earlier conversation, issue, or PR identifying the intended feature. Inspection found two independent completed features, CSV export and dark mode. There is no configured remote, default-branch metadata, or user-selected base, and several local branches could be the target. The working tree is dirty. What do you do next?",
+      "expected_output": "A concise clarification establishes which feature and base to use before destination creation or source mutation.",
+      "expectations": [
+        "The response requests the intended feature and base rather than choosing either arbitrarily",
+        "The response creates no branch and leaves the source HEAD, index, and dirty working files untouched",
+        "The response does not require a clean source working tree or ask the user to commit or stash it first"
+      ]
+    }
+  ]
+}
