@@ -1,6 +1,6 @@
 ---
 name: telegram-daily-log
-description: Summarize today's verified accomplishments as a Telegram daily log and copy it to the clipboard.
+description: Summarize today's verified accomplishments as a Telegram-ready daily log.
 disable-model-invocation: true
 ---
 
@@ -66,8 +66,7 @@ Today's output: ...
 - Use Telegram-safe plain text: blank lines, numbered items, and bare URLs only when useful.
   Markdown link syntax and decorative formatting render inconsistently when pasted.
 
-## Copy
+## Output
 
-Copy only the completed post to the macOS clipboard with `pbcopy`, verify that the clipboard is
-non-empty, then report the copied title. Keep coverage gaps and credential warnings outside the
-clipboard content.
+Print the completed post in a single fenced `text` code block so it can be copied as is. Put
+coverage gaps and credential warnings after the block, outside it.
