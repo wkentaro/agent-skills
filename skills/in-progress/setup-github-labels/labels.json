@@ -1,0 +1,15 @@
+[
+  {"name": "type:bug", "renamed_from": "type: bug", "scope": "issue", "color": "d73a4a", "description": "Reporting a defect to fix"},
+  {"name": "type:feature", "renamed_from": "type: feature", "scope": "issue", "color": "a2eeef", "description": "Requesting a new capability or improvement"},
+  {"name": "type:task", "renamed_from": "type: task", "scope": "issue", "color": "cfd3d7", "description": "Other work: maintenance, refactor, docs"},
+  {"name": "needs-triage", "scope": "issue", "color": "fbca04", "description": "Under evaluation, not yet routed"},
+  {"name": "needs-info", "scope": "issue", "color": "d876e3", "description": "Waiting on reporter for more information"},
+  {"name": "ready-for-agent", "scope": "issue", "color": "0e8a16", "description": "Fully specified, ready for an AFK agent"},
+  {"name": "ready-for-human", "scope": "issue", "color": "1d76db", "description": "Requires human implementation"},
+  {"name": "wontfix", "scope": "issue", "color": "ffffff", "description": "Will not be actioned"},
+  {"name": "recommend-merge", "scope": "pr", "color": "0e8a16", "description": "Agent finalized and endorses it: review and merge"},
+  {"name": "recommend-close", "scope": "pr", "color": "d93f0b", "description": "Agent recommends closing: your call to review or close"},
+  {"name": "recommend-triage", "scope": "pr", "color": "fbca04", "description": "Code is sound; merge or close is a product call"},
+  {"name": "recommend-revise", "renamed_from": "needs-changes", "scope": "pr", "color": "b60205", "description": "Review found defects or questions; author must revise and push"},
+  {"name": "maintainer-approved", "scope": "pr", "color": "0e8a16", "description": "Maintainer reviewed this head and approves merging after required checks pass"}
+]
