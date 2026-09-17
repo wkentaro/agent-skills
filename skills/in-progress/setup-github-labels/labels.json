@@ -10,6 +10,6 @@
   {"name": "recommend-merge", "scope": "pr", "color": "0e8a16", "description": "Agent finalized and endorses it: review and merge"},
   {"name": "recommend-close", "scope": "pr", "color": "d93f0b", "description": "Agent recommends closing: your call to review or close"},
   {"name": "recommend-triage", "scope": "pr", "color": "fbca04", "description": "Code is sound; merge or close is a product call"},
-  {"name": "recommend-revise", "renamed_from": "needs-changes", "scope": "pr", "color": "b60205", "description": "Review found defects or questions; author must revise and push"},
-  {"name": "maintainer-approved", "scope": "pr", "color": "0e8a16", "description": "Maintainer reviewed this head and approves merging after required checks pass"}
+  {"name": "recommend-revise", "renamed_from": "needs-changes", "scope": "pr", "color": "d876e3", "description": "Review found defects or questions; author must revise and push"},
+  {"name": "maintainer-approved", "scope": "pr", "color": "1d76db", "description": "Maintainer reviewed this head and approves merging after required checks pass"}
 ]
