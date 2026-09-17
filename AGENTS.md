@@ -14,7 +14,7 @@ Issues are tracked with GitHub Issues. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
-Triage uses the five standard labels. See `docs/agents/triage-labels.md`.
+Issue triage roles and PR verdict labels are mapped in `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
