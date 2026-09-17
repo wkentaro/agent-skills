@@ -1,0 +1,41 @@
+{
+  "skill_name": "setup-github-labels",
+  "evals": [
+    {
+      "id": "preview-classifies-renames",
+      "prompt": "Use the setup-github-labels skill to preview, and only preview, the label changes for github.com/example/app. Do not run any gh command that mutates; simulate the read-only ones. Assume `gh label list` returns exactly: `type: bug`, `type: feature`, `needs-triage`, `needs-info`, `recommend-merge`, `needs-changes`, `dependencies`, `good first issue`. Assume neither `docs/agents/triage-labels.md` nor a `AGENTS.md` label pointer exists. Report the preview the skill would show the user.",
+      "expected_output": "A preview that buckets every manifest label into rename, update, or create, leaves non-manifest labels alone, and stops before applying.",
+      "expectations": [
+        "`type: bug` and `type: feature` are listed as renames to `type:bug` and `type:feature`, not as new labels alongside the old ones.",
+        "`needs-changes` is listed as a rename to `recommend-revise`.",
+        "`dependencies` and `good first issue` are reported as untouched.",
+        "The contract file and the AGENTS.md pointer are both reported as to-be-created.",
+        "No `gh label create`, `gh label edit`, or `gh label delete` is executed, and the output asks the user to confirm before applying."
+      ]
+    },
+    {
+      "id": "apply-renames-before-create",
+      "prompt": "The user has confirmed the preview and asks you to apply the setup-github-labels manifest to github.com/example/app, where `type: bug` currently exists and is on 141 issues. Do not actually run gh; instead print the exact shell you would run and explain, in two sentences, why the order matters. Then state what the skill's report step would say if every command succeeded.",
+      "expected_output": "A loop driven by labels.json that renames each `renamed_from` label with `gh label edit --name` before `gh label create --force`, preserving issue history, with no per-label hand-written commands.",
+      "expectations": [
+        "The shell reads `labels.json` with jq rather than listing each label by hand.",
+        "For a label with `renamed_from`, `gh label edit <old> --name <new>` runs before `gh label create <new> --force`.",
+        "The explanation states that renaming keeps the 141 issues on the label whereas creating a new label would leave them on the old one.",
+        "No `gh label delete` appears anywhere.",
+        "The report distinguishes renamed, updated, and created labels."
+      ]
+    },
+    {
+      "id": "contract-preserves-local-content",
+      "prompt": "Using the setup-github-labels skill, write the updated `docs/agents/triage-labels.md` for a repository whose current file contains only a heading and this section, which must survive: `## Area labels\\n\\n`area:ui` and `area:cli` are applied by actions/labeler from path globs.` Also state the one-line change you would make to the root `AGENTS.md`, whose only relevant line currently reads `Triage uses the five standard labels. See docs/agents/triage-labels.md.`. Output the full new contract file and the AGENTS.md line.",
+      "expected_output": "A contract with a role table that has issue and PR columns, the rules from the skill, and the untouched area-labels section, plus a minimal AGENTS.md pointer.",
+      "expectations": [
+        "The role table has one row per /triage role and separate columns for an issue label and a PR label.",
+        "`bug` maps to `type:bug` and `enhancement` maps to `type:feature`, with `type:task` named for maintenance, docs, or refactor work.",
+        "`needs-info` maps to `recommend-revise` on a PR, `ready-for-human` to `recommend-merge`, and `wontfix` to `recommend-close`.",
+        "The `## Area labels` section appears verbatim in the output.",
+        "The AGENTS.md change is a single pointer line that mentions PR verdicts and does not copy any table or rule."
+      ]
+    }
+  ]
+}
