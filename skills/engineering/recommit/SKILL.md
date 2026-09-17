@@ -1,13 +1,13 @@
 ---
 name: recommit
-description: Reshape the commits a branch carries on top of its target branch into a clean, logical sequence without changing the final committed tree, then stop before any push. Use when a branch needs presentable history before review or merge, when iterative work left fixups, WIP commits, or interleaved refactors, when another skill needs clean commits, or when the user says "recommit" or asks to tidy the git history.
+description: Reshape the commits a branch carries on top of its target branch into a clean, logical sequence without changing the final committed tree. Use when a branch needs presentable history before review or merge, when iterative work left fixups, WIP commits, or interleaved refactors, when another skill needs clean commits, or when the user says "recommit" or asks to tidy the git history.
 ---
 
 # Recommit
 
 Rewrite the commits after a branch's merge base into a sequence where each commit tells
-one story and stands on its own. Preserve the final committed tree and leave the updated
-branch local. This skill reshapes history; it does not edit code.
+one story and stands on its own. Preserve the final committed tree. This skill reshapes
+history; it does not edit code.
 
 Do not use this skill to change behavior, to rewrite commits that the target branch
 already contains, or on a branch that other people build on without coordination.
@@ -18,7 +18,6 @@ already contains, or on a branch that other people build on without coordination
 - Rewrite only commits after the confirmed merge base.
 - Preserve the exact committed tree from the original branch tip.
 - Show the proposed sequence and the recovery point before the rewrite.
-- Stop before every push.
 
 ## Workflow
 
@@ -87,8 +86,7 @@ and every proposed commit has a validation command or an explicit reason that no
 
 Show the confirmed target, `MERGE_BASE..<ORIG>`, the complete proposed sequence, and the
 recovery command `git reset --hard <ORIG>`. The rewrite changes only local history and
-that one command reverts it, so continue without waiting; the push in step 5 is the
-action that needs permission.
+that one command reverts it, so continue without waiting.
 
 ### 3. Rebuild the history
 
@@ -115,12 +113,10 @@ Recovery restores the recorded starting point, so it needs no separate permissio
 
 The step is complete only when both invariants and every planned per-commit check pass.
 
-### 5. Stop
+### 5. Finish
 
 Show `git log <MERGE_BASE>..HEAD --reverse --oneline`, the saved `ORIG`, and the checks that
-passed. State that the branch is local and that updating its PR or MR requires
-`git push --force-with-lease`. Ask for explicit final permission immediately before that
-push. Do not push as part of this skill.
+passed.
 
 ## Worked example
 
@@ -136,4 +132,4 @@ sequence:
    until here), and the generated translations.
 
 The final tree matched `ORIG_TREE`, every commit passed lint and type checks in the
-temporary worktree, and the branch stayed local with the force-push left to the user.
+temporary worktree.
