@@ -65,10 +65,19 @@ what each open PR needs from them.
 | `recommend-merge`  | `0E8A16` | pr: Agent finalized and endorses it: review and merge |
 | `recommend-close`  | `D93F0B` | pr: Agent recommends closing: your call to review or close |
 | `recommend-triage` | `FBCA04` | pr: Agent finalized it but the merge/close call is yours |
+| `needs-changes`    | `B60205` | pr: Review found defects; author must revise and push |
 
-The verdict is **three-way by design**: the agent finalizes a PR (rebase, green
-CI, polish) and then emits exactly one of the three. The split exists because
-"not mergeable as-is" hides two states with very different maintainer effort:
+`needs-changes` is the one verdict that hands the PR back to its **author**
+rather than the maintainer. It stands in for GitHub's native "changes
+requested", which is unavailable exactly where agents work: a maintainer cannot
+request changes on a self-authored PR, and an agent reviewing under the
+maintainer's account inherits that restriction. The defects go in the review
+comments; the label only records whose turn it is. Like every verdict it binds
+to one head, so the next push clears it.
+
+The maintainer-facing verdict is **three-way by design**: the agent finalizes a
+PR (rebase, green CI, polish) and then emits exactly one of the three. The split
+exists because "not mergeable as-is" hides two states with very different maintainer effort:
 
 - `recommend-close` is the agent's **active reject** — broken, abandoned,
   superseded, or clearly out of scope. The maintainer glances and closes.
@@ -168,6 +177,7 @@ the same whether you're looking at an issue or a PR:
 | Maintainer's turn — endorsed           | `ready-for-human` (human implements)      | `recommend-merge` (human reviews/merges)  |
 | Maintainer's turn — must decide        | `needs-triage` (maintainer evaluates)     | `recommend-triage` (product/scope call)   |
 | Maintainer accepted — checks/merge pending | *(no issue equivalent)*                | `maintainer-approved`                     |
+| Author's turn — review found defects   | *(no issue equivalent)*                   | `needs-changes`                           |
 | Won't proceed                          | `wontfix`                                 | `recommend-close`                         |
 
 Three asymmetries are intentional, not gaps:
@@ -240,6 +250,7 @@ gh label create "wontfix"         --color ffffff --description "issue: Will not 
 gh label create "recommend-merge"  --color 0E8A16 --description "pr: Agent finalized and endorses it: review and merge"   --force --repo "$REPO"
 gh label create "recommend-close"  --color D93F0B --description "pr: Agent recommends closing: your call to review or close" --force --repo "$REPO"
 gh label create "recommend-triage" --color FBCA04 --description "pr: Agent finalized it but the merge/close call is yours" --force --repo "$REPO"
+gh label create "needs-changes"    --color B60205 --description "pr: Review found defects; author must revise and push" --force --repo "$REPO"
 gh label create "maintainer-approved" --color 0E8A16 --description "pr: Maintainer reviewed this head and approves merging after required checks pass" --force --repo "$REPO"
 ```
 
@@ -256,7 +267,8 @@ contract. Preserve unrelated repository-specific content. The document must:
   triage label and one type label; an issue with no triage label is fresh work
   for the agent to route, while `needs-triage` is reserved for a maintainer
   decision;
-- document the three mutually exclusive agent PR verdicts, the explicit-human-only
+- document the four mutually exclusive agent PR verdicts (three maintainer-facing
+  plus `needs-changes` handing the PR back to its author), the explicit-human-only
   `maintainer-approved` verdict, the shared `needs-info` state, and the draft flag
   as the in-progress state;
 - state that verdicts record decisions rather than merge or close, and that a new
