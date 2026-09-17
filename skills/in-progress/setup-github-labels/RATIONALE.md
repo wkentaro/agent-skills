@@ -10,6 +10,7 @@ Read this when changing `labels.json`, not when applying it.
 - Agent PR-verdict axis
 - Maintainer PR-verdict axis
 - Issue and PR equivalents
+- Colors
 - Deliberate omissions
 
 ## Naming rule
@@ -109,6 +110,33 @@ Asymmetries are intentional. Untriaged, under evaluation, and agent's turn
 collapse into one PR state because a non-draft PR without a verdict already
 means "agent, finalize this". `ready-for-human` means *implement it* while
 `recommend-merge` means *review and merge it*, so they stay separate labels.
+
+## Colors
+
+Every color comes from GitHub's label color picker, so the set looks native next
+to a repo's existing labels. The `type:` labels and `wontfix` keep the colors of
+the GitHub default labels they replace. For the rest, hue says whose move it is,
+and an issue state shares its hue with its PR equivalent:
+
+| Hue              | Meaning                  | Labels                                   |
+| ---------------- | ------------------------ | ---------------------------------------- |
+| Yellow `fbca04`  | Maintainer must decide   | `needs-triage`, `recommend-triage`       |
+| Purple `d876e3`  | Waiting on the author    | `needs-info`, `recommend-revise`         |
+| Blue `1d76db`    | A human holds it         | `ready-for-human`, `maintainer-approved` |
+| Green `0e8a16`   | Go                       | `ready-for-agent`, `recommend-merge`     |
+| Red `d93f0b`     | Stop                     | `recommend-close`                        |
+
+Two constraints a change must keep:
+
+- Labels that can sit on the same PR need clearly different colors.
+  `maintainer-approved` coexists with `recommend-merge`, and the pair records
+  the distinction that matters most, agent opinion versus maintainer decision.
+  Both were once green and read as one label.
+- Severity follows the verdict, not the amount of work. `recommend-revise` was
+  once dark red `b60205`: a recoverable verdict painted more alarming than the
+  terminal `recommend-close`, and close enough to it (CIE76 ΔE 15, against 69 or
+  more between any other two PR hues) that the two were hard to tell apart in a
+  list.
 
 ## Deliberate omissions
 
