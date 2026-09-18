@@ -1,0 +1,7 @@
+interface:
+  display_name: "Dispatch New Session"
+  short_description: "Launch a chosen agent in a new Herdr tab"
+  default_prompt: "Use $dispatch-new-session to launch this task in a new agent session."
+
+policy:
+  allow_implicit_invocation: false
