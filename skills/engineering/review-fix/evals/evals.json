@@ -3,33 +3,33 @@
   "evals": [
     {
       "id": "default-policy",
-      "prompt": "Use /review-fix on the current working tree. I supplied no arguments. Assume every built-in review skill is installed, all Reviewer trees return clean reports, enough agent slots are available, and the required verification passes. For this evaluation, simulate the run and return exactly the resulting report without accessing a repository.",
+      "prompt": "Use /review-fix on the current working tree. I supplied no arguments. Assume every built-in review skill is installed, all required review roles return clean reports, enough agent slots are available, and the required verification passes. For this evaluation, simulate the run and return exactly the resulting report without accessing a repository.",
       "expected_output": "One clean round using the four-request Default Review Policy without asking for a Review Brief.",
       "expectations": [
         "The output resolves exactly four Review Requests: code-review, simplify, improve-codebase-architecture, and ask-exemplar",
         "The output does not ask the caller to supply a Review Brief",
         "The output runs simplify in report-only mode with all four cleanup angles",
-        "The output runs improve-codebase-architecture as diff-bounded Deepening analysis using codebase-design vocabulary with a report-only exploration descendant",
-        "The output allows code-review to delegate to its report-only Standards and Spec Reviewers",
+        "The output runs improve-codebase-architecture as diff-bounded Deepening analysis using codebase-design vocabulary with a report-only exploration role",
+        "The output centrally schedules separate report-only Standards and Spec roles for code-review",
         "The output reports a clean outcome after one round",
-        "The compact clean report omits empty claim, repair, and evidence-gap categories and lists each Reviewer Tree's provenance once",
+        "The compact clean report omits empty claim, repair, and evidence-gap categories and lists each role-to-agent assignment once",
         "The output does not claim to have edited, committed, rebased, commented, or pushed"
       ]
     },
     {
       "id": "explicit-review-skills",
       "prompt": "Run `/review-fix #41 ponytail-review and ask-exemplar`. For this evaluation, assume #41 resolves to an editable PR, both named skills are installed report-only Review Skills that return clean reports, and the required verification passes; describe the resulting workflow and report without accessing the forge.",
-      "expected_output": "One clean round with one fresh report-only Reviewer for each explicitly named skill.",
+      "expected_output": "One clean round with a separate report-only review pass for each explicitly named skill.",
       "expectations": [
         "The output resolves exactly two Review Requests, one for ponytail-review and one for ask-exemplar",
-        "The workflow preflights both skills as report-only and dispatches a fresh Reviewer for each",
+        "The workflow preflights both skills as report-only and assigns a separate review pass for each",
         "The output reports a clean outcome after one round and starts no further round",
         "The output does not claim to commit, rebase, comment, push, or choose reviewer models"
       ]
     },
     {
       "id": "ad-hoc-brief",
-      "prompt": "Use `/review-fix authentication bypasses and secret leakage` on the current change. Assume no installed Review Skill unambiguously matches, the Reviewer claims `auth.py:42 interpolates an untrusted tenant ID into SQL, enabling authentication bypass and secret leakage`, direct inspection disproves that claim, and the required verification passes. For this evaluation, describe the workflow and final report without modifying files.",
+      "prompt": "Use `/review-fix authentication bypasses and secret leakage` on the current change. Assume no installed Review Skill unambiguously matches, the Reviewer claims `auth.py:42 interpolates an untrusted tenant ID into SQL, enabling authentication bypass and secret leakage`, direct inspection disproves that claim because auth.py:42 uses a parameterized query and binds the tenant ID as data, and the required verification passes. For this evaluation, describe the workflow and final report without modifying files.",
       "expected_output": "One ad-hoc Reviewer covers the whole brief, and its disproved claim is rejected with a clean outcome.",
       "expectations": [
         "The output creates exactly one ad-hoc Review Request rather than splitting the two concerns",
@@ -40,20 +40,20 @@
     },
     {
       "id": "verified-repair",
-      "prompt": "Use `/review-fix unsafe temporary-file replacement` on the current change. Assume no installed Review Skill matches. In round one, the ad-hoc Reviewer reports one claim; direct inspection and a focused reproduction verify it, a surgical repair is available, and the relevant checks pass. In round two, a fresh Reviewer reports no claims. For this evaluation, simulate the workflow and final report without modifying actual files.",
-      "expected_output": "The first round verifies and repairs the claim, then a fresh second-round Reviewer confirms the simulated target is clean and the repair remains uncommitted.",
+      "prompt": "Use `/review-fix unsafe temporary-file replacement` on the current change. Assume no installed Review Skill matches. In round one, the ad-hoc Reviewer reports one claim; direct inspection and a focused reproduction verify it, a surgical repair is available, and the relevant checks pass. In round two, a new review pass reports no claims. For this evaluation, simulate the workflow and final report without modifying actual files.",
+      "expected_output": "The first round verifies and repairs the claim, then a new second-round review pass confirms the simulated target is clean and the repair remains uncommitted.",
       "expectations": [
         "The output creates exactly one ad-hoc Review Request",
         "The output independently verifies the Reviewer claim before accepting it as a Verified Finding",
         "The output passes the Synthesis Gate, applies only the supported repair, passes the Repair Gate, and records the first round as fixed",
-        "The output starts a second Full round with a fresh Reviewer because the one-request impacted set is the complete unchanged Review Policy",
+        "The output starts a second Full round with a new review pass because the one-request impacted set is the complete unchanged Review Policy",
         "The output reports clean after the second round and leaves the repair uncommitted",
         "The output does not start a third round, rebase, comment, or push"
       ]
     },
     {
       "id": "scope-contract-synthesis",
-      "prompt": "Use `/review-fix #41 license handoff correctness`. Assume #41 and repository docs establish that the intended behavior passes a license token only to the owned Labelme app process, the canonical term is `Labelme app`, the owned boundary is the launcher-to-app handoff, checksum and retry hardening are explicit non-goals, and a local verification command exists. The ad-hoc Reviewer reports two claims: the token leaks to an unrelated child process, which direct inspection verifies, and the change should add checksum/retry hardening and rename the concept to `paid desktop`. A surgical environment-boundary repair exists, its checks pass, and a fresh Full Reviewer reports clean. Simulate the workflow and final report without modifying actual files.",
+      "prompt": "Use `/review-fix #41 license handoff correctness`. Assume #41 and repository docs establish that the intended behavior passes a license token only to the owned Labelme app process, the canonical term is `Labelme app`, the owned boundary is the launcher-to-app handoff, checksum and retry hardening are explicit non-goals, and a local verification command exists. The ad-hoc Reviewer reports two claims: the token leaks to an unrelated child process, which direct inspection verifies, and the change should add checksum/retry hardening and rename the concept to `paid desktop`. A surgical environment-boundary repair exists, its checks pass, and a new Full review reports clean. Simulate the workflow and final report without modifying actual files.",
       "expected_output": "The Scope Contract controls synthesis: the verified leak receives the smallest repair, while out-of-scope hardening and invented terminology are rejected and retained in the Claim Ledger.",
       "expectations": [
         "The Scope Contract records the intended behavior, canonical term, owned boundary, explicit non-goals, and required verification",
@@ -61,7 +61,7 @@
         "The Synthesis Gate rejects checksum/retry hardening and `paid desktop` as scope expansion rather than defects",
         "The output applies the smallest environment-boundary repair and runs the required verification",
         "The Claim Ledger progresses the leak through accepted-pending, accepted-repaired, and verified-closed while retaining the rejected remedy reason",
-        "A fresh Full round reports clean and the downstream handoff says the repair remains uncommitted"
+        "A new Full round reports clean and the downstream handoff says the repair remains uncommitted"
       ]
     },
     {
@@ -103,12 +103,12 @@
     },
     {
       "id": "adaptive-middle-round",
-      "prompt": "Use `/review-fix` with no arguments. Assume the first Full round runs the Default Review Policy and only simplify reports a Verified Finding for one duplicated local expression. Its surgical repair changes no interface, cross-module behavior, dependency or security boundary, or contract term, and passes the Repair Gate. A fresh simplify Reviewer Tree reports no claims in the Delta round, and the orchestrator can demonstrate that the other three Review Requests are unaffected. For this evaluation, simulate the workflow and final report without modifying actual files.",
+      "prompt": "Use `/review-fix` with no arguments. Assume the first Full round runs the Default Review Policy and only simplify reports a Verified Finding for one duplicated local expression. Its surgical repair changes no interface, cross-module behavior, dependency or security boundary, or contract term, and passes the Repair Gate. New reports from every simplify role contain no claims in the Delta round, and the orchestrator can demonstrate that the other three Review Requests are unaffected. For this evaluation, simulate the workflow and final report without modifying actual files.",
       "expected_output": "The run narrows its second round to simplify and reports clean without an unnecessary four-request rerun because every narrow-repair closure condition is satisfied.",
       "expectations": [
         "The first Full round dispatches all four Default Review Policy requests",
         "The repair passes a Repair Gate that rechecks the finding, sibling paths, and relevant checks",
-        "The Delta round dispatches only a fresh simplify Reviewer Tree and explains why the other three requests are not impacted",
+        "The Delta round dispatches only new reports from every simplify role and explains why the other three requests are not impacted",
         "The output states that the authoritative four-request Review Policy remains unchanged",
         "The output reports clean after the Delta round because every accepted claim is verified-closed and every narrow-repair closure condition holds",
         "The output does not dispatch a redundant Final Full round and leaves the repair uncommitted"
@@ -116,12 +116,12 @@
     },
     {
       "id": "staggered-review-barrier",
-      "prompt": "Use `/review-fix` with no arguments. Assume the code-review Reviewer Tree returns one repairable Verified Finding immediately, while the simplify, improve-codebase-architecture, and ask-exemplar Reviewer Trees are still running. The remaining trees later return clean reports, the target does not change externally, the repair and relevant checks pass, and the impacted Delta round returns clean. For this evaluation, simulate the workflow and final report without modifying actual files.",
-      "expected_output": "The early finding is queued until every Reviewer Tree finishes; only then does synthesis authorize one repair batch.",
+      "prompt": "Use `/review-fix` with no arguments. Assume the code-review roles return one repairable Verified Finding immediately, while the simplify, improve-codebase-architecture, and ask-exemplar review roles are still running. The remaining roles later return clean reports, the target does not change externally, the repair and relevant checks pass, and the impacted Delta round returns clean. For this evaluation, simulate the workflow and final report without modifying actual files.",
+      "expected_output": "The early finding is queued until every required role reports; only then does synthesis authorize one repair batch.",
       "expectations": [
         "The first Reviewer report is recorded without starting direct checks, synthesis, verification, or edits",
-        "The Full round keeps one HEAD, status, and diff hash until all four Reviewer Trees finish",
-        "The Synthesis Gate starts only after the simplify, improve-codebase-architecture, and ask-exemplar trees return",
+        "The Full round keeps one HEAD, status, and diff hash until all roles of the four requests report",
+        "The Synthesis Gate starts only after the simplify, improve-codebase-architecture, and ask-exemplar roles report",
         "The verified repair is applied once as part of the completed round's repair batch",
         "No Reviewer report becomes stale because of an orchestrator edit made before the round barrier closes",
         "The impacted Delta round reports clean and the repair remains uncommitted"
@@ -154,15 +154,15 @@
     },
     {
       "id": "observable-positive-synthesis",
-      "prompt": "Use `/review-fix canvas flicker` on the current change. Assume no installed Review Skill matches. The ad-hoc Reviewer reports a source-indeterminate flicker claim and proposes broad repaint hardening. The smallest in-scope desktop QA check reproduces flicker only when transform operations are ordered incorrectly. A surgical ordering repair exists, its checks pass, and a fresh Full Reviewer reports clean. Simulate the workflow and final report without accessing a repository or desktop.",
-      "expected_output": "Positive direct evidence returns through the Synthesis Gate, which rejects broad hardening and selects the smallest verified repair before a fresh Full round reports clean.",
+      "prompt": "Use `/review-fix canvas flicker` on the current change. Assume no installed Review Skill matches. The ad-hoc Reviewer reports a source-indeterminate flicker claim and proposes broad repaint hardening. The smallest in-scope desktop QA check reproduces flicker only when transform operations are ordered incorrectly. A surgical ordering repair exists, its checks pass, and a new Full review reports clean. Simulate the workflow and final report without accessing a repository or desktop.",
+      "expected_output": "Positive direct evidence returns through the Synthesis Gate, which rejects broad hardening and selects the smallest verified repair before a new Full round reports clean.",
       "expectations": [
         "The output routes the source-indeterminate claim to the direct desktop QA check",
         "The positive reproduction becomes evidence for a Verified Finding",
         "The newly verified claim passes the Synthesis Gate before any edit",
         "The Synthesis Gate rejects broad repaint hardening and selects the surgical ordering repair",
         "The repair passes the Repair Gate and progresses through the Claim Ledger states",
-        "A fresh Full round reports clean and the repair remains uncommitted"
+        "A new Full round reports clean and the repair remains uncommitted"
       ]
     },
     {
@@ -188,24 +188,38 @@
     },
     {
       "id": "nested-composite-skill",
-      "prompt": "Use `/review-fix #41 code-review`. Assume #41 resolves, code-review delegates to report-only Standards and Spec subagents, all three reports are clean, and enough agent slots are available. For this evaluation, describe the resulting workflow and report without accessing the forge.",
-      "expected_output": "One clean round whose code-review Reviewer delegates to two report-only axis Reviewers.",
+      "prompt": "Use `/review-fix #41 code-review`. Assume #41 resolves, code-review requires report-only Standards and Spec reviews, both reports are clean, and enough agent slots are available. For this evaluation, describe the resulting workflow and report without accessing the forge.",
+      "expected_output": "One clean round with separate Standards and Spec reports scheduled directly by the orchestrator, which aggregates them.",
       "expectations": [
         "The output resolves exactly one Review Request for code-review",
-        "Preflight accepts code-review as a bounded report-only composite and reserves capacity for its descendants",
-        "The top-level code-review Reviewer delegates to separate Standards and Spec Reviewers",
-        "The output reports the full Reviewer tree provenance and a clean outcome after one round",
+        "Preflight accepts code-review as a bounded report-only composite and includes both required roles in the pool schedule",
+        "The orchestrator directly assigns Standards and Spec roles; neither reviewer delegates",
+        "The output reports role-to-agent assignments, orchestrator synthesis, pool size, and a clean outcome after one round",
         "No Reviewer modifies files, commits, rebases, comments, or pushes"
       ]
     },
     {
       "id": "reject-mutating-composite",
-      "prompt": "Use `/review-fix #41 review-and-publish`. Assume #41 resolves, and inspection of review-and-publish shows that one required descendant applies fixes and posts forge comments. For this evaluation, state the outcome without accessing the forge.",
+      "prompt": "Use `/review-fix #41 review-and-publish`. Assume #41 resolves, and inspection of review-and-publish shows that one required role applies fixes and posts forge comments. For this evaluation, state the outcome without accessing the forge.",
       "expected_output": "Preflight rejects the mutating composite and returns incomplete before dispatch or mutation.",
       "expectations": [
         "The output identifies the required writes and forge comments as incompatible with the report-only Reviewer boundary",
-        "The output rejects the complete Reviewer tree before starting any agent",
+        "The output rejects the complete set of review roles before starting any agent",
         "The output reports incomplete and does not modify, commit, rebase, comment, or push"
+      ]
+    },
+    {
+      "id": "capacity-without-close",
+      "prompt": "Use /review-fix with its default policy. Simulate a runtime with capacity for the orchestrator and two reviewer threads, a follow-up task tool, and no close-thread tool. Completed reviewers retain their slots. Initial fresh reviewers complete Standards and Spec; spawning another reviewer returns agent thread limit reached. All required remaining review roles and local verification return clean. Describe the completed run without accessing a repository.",
+      "expected_output": "The orchestrator reuses the two idle reviewers sequentially for every remaining role, preserving report-only boundaries and the round barrier, then reports clean with honest reuse provenance.",
+      "expectations": [
+        "All four requests and every required role finish, including all four Simplify angles and architecture exploration",
+        "The orchestrator alone schedules work and performs composite synthesis; reviewers never delegate",
+        "After the capacity rejection, follow-up assignments reuse existing idle reviewers without repeated spawn attempts or an invented close tool",
+        "Each reassigned role inspects the current snapshot and returns a separate report",
+        "No direct checks, synthesis, or repairs begin before all role reports finish and the unchanged snapshot is confirmed",
+        "The report records two reviewer threads plus the orchestrator and explicitly discloses retained context and reduced independence",
+        "The run finishes clean after required verification rather than incomplete merely because fresh spawning was unavailable"
       ]
     }
   ]

@@ -43,9 +43,11 @@ includes a target-only request such as `/review-fix #123`.
 
 ## Resolve the review policy
 
-A Review Request runs in a fresh, report-only Reviewer Tree. A Leaf Review Skill
-reports through one Reviewer; a Composite Review Skill may delegate the review
-work it requires. Every agent in the tree inherits the same report-only boundary.
+A Review Request runs as report-only review roles. A Leaf Review Skill has one
+role; a Composite Review Skill includes its required angles and synthesis. The
+orchestrator schedules every role directly and performs composite synthesis.
+These scheduling rules override nested delegation and fresh-agent requirements
+in invoked skills; their review criteria and required reports remain unchanged.
 
 - Each explicitly named review skill creates one Review Request.
 - Explicitly named skills replace the Default Review Policy rather than adding
@@ -66,13 +68,31 @@ work it requires. Every agent in the tree inherits the same report-only boundary
   separate, unassigned concern, ask whether it belongs to a named Reviewer or a
   separate ad-hoc Reviewer.
 
-Preflight the complete Reviewer Tree before starting any Reviewer. Resolve named
+Preflight all review roles before starting any Reviewer. Resolve named
 skills and their required review skills to absolute directories so every agent
-can read its skill directly even when model invocation is disabled. Reserve
-enough agent slots for Composite Review Skills; serialize top-level requests
-when concurrent dispatch would starve their descendants. The runtime chooses
-models and reasoning effort; this skill carries no model matrix. Record each
-resolved Reviewer Tree and its slot reservation for the final report.
+can read its skill directly even when model invocation is disabled. The runtime
+chooses models and reasoning effort; this skill carries no model matrix.
+
+### Schedule reviewers
+
+Require a separate report for each review role, not a separate agent thread.
+Inspect available capacity and lifecycle tools, then schedule roles within a
+bounded pool. Reviewers inspect and report; only the orchestrator delegates.
+
+- Prefer fresh reviewers when completed threads can be closed. Collect their
+  final reports and close them with an available lifecycle tool before replacing
+  them. Completion or interruption alone is not evidence of a released slot.
+- When closing is unavailable, reuse idle reviewers sequentially through follow-up
+  tasks. Each assignment names its role, current snapshot, criteria, and report-only
+  boundary. Require a new source inspection and report; earlier conclusions are
+  evidence to challenge, not authority. Disclose retained context and reduced
+  independence rather than calling a reused reviewer fresh.
+- On a capacity rejection, collect outstanding reports and reuse an idle reviewer.
+  Retry spawning only after capacity or lifecycle state changes. If no reviewer
+  can execute a required role, return `incomplete`; capacity never removes a role.
+
+Record the role-to-agent assignments, peak pool size, and fresh or reused status.
+Preserve the round barrier across sequential assignments and composite synthesis.
 
 ### Default Review Policy
 
@@ -83,7 +103,7 @@ mode narrows write-capable skills to report-only evaluation.
 | --- | --- |
 | `code-review` | Standards and Spec review |
 | `simplify` | Report-only Composite Review Skill with Reuse, Simplification, Efficiency, and Altitude Reviewers |
-| `improve-codebase-architecture` | Diff-bounded Deepening analysis using `codebase-design` vocabulary and one report-only exploration descendant; return findings without creating HTML, opening a browser, starting the grilling loop, or writing files |
+| `improve-codebase-architecture` | Diff-bounded Deepening analysis using `codebase-design` vocabulary and one report-only exploration role; return findings without creating HTML, opening a browser, starting the grilling loop, or writing files |
 | `ask-exemplar` | Embedded Evaluation |
 
 ## Establish the scope contract
@@ -110,7 +130,7 @@ security boundary, or contract term. Ambiguity requires a later Full round.
 Maintain two compact ledgers in orchestration state, never in the target:
 
 - The Run Ledger records each round's scope, HEAD, status, diff hash, Reviewer
-  Tree identities and slot reservations, reports, target-mutation result,
+  role-to-agent assignments and pool size, reports, target-mutation result,
   repairs, checks, and CI classification.
 - The Claim Ledger keys each claim by location and meaning, and records its
   Scope Contract or repository-standard basis, provenance, evidence, required
@@ -129,26 +149,25 @@ the set. When that set is the complete Review Policy, the next round is Full.
 ### Round barrier
 
 One Review Round owns one immutable target snapshot. Queue early Reviewer reports
-without acting on them. The barrier closes only after every Reviewer Tree finishes
+without acting on them. The barrier closes only after every required role reports
 and the target still matches the round's recorded HEAD, status, and diff hash.
 Direct checks, synthesis, verification, and edits start only after the barrier
-closes. A failed or timed-out tree, or a changed target, makes the outcome
+closes. A failed or timed-out review, or a changed target, makes the outcome
 `incomplete`; a partial round never authorizes a repair.
 
 1. Record the target's HEAD, status, and complete diff. This opens the round
    barrier.
-2. Select a Full or Delta round and record why each request is included. Dispatch
-   one fresh top-level Reviewer per included Review Request, concurrently where
-   the preflighted nesting budget allows. Give each tree the same target, base,
+2. Select a Full or Delta round and record why each request is included. Assign
+   every included role under Schedule reviewers. Give each reviewer the same target, base,
    diff scope, Scope Contract, Claim Ledger, and repository instructions. Mark
-   ledger conclusions as prior evidence, not authority: every fresh Reviewer
+   ledger conclusions as prior evidence, not authority: every assigned Reviewer
    independently inspects the current target and may challenge them. A
    named-skill Reviewer reads and follows that skill and its required references;
    an ad-hoc Reviewer uses the Review Brief as its review criteria.
-3. Require every Reviewer Tree to inspect and report only. A Composite Review
-   Skill delegates only where required and passes the target context and
-   report-only boundary to every descendant. A Reviewer executing a Leaf Review
-   Skill or ad-hoc focus does not delegate. No Reviewer may modify files, commit,
+3. Require every Reviewer to inspect and report only on its assigned role, without
+   delegation. Preserve separate angle reports for composite skills; the
+   orchestrator applies their aggregation rules after the round barrier closes.
+   No Reviewer may modify files, commit,
    comment on a forge, or push. Each finding includes its location, claim,
    evidence, and proposed remedy; a clean Reviewer says so.
 4. Close the round barrier before continuing.
@@ -196,32 +215,34 @@ make a supported repair, makes the outcome `incomplete` instead of cycling.
 
 ## Return the outcome
 
+Include each request's selected mode and report-only preflight result in either
+output form, so the handoff shows which criteria and boundaries were accepted.
+
 Choose one output form:
 
 - For a one-round `clean` run, return only the compact downstream handoff. Include
   the policy source, exact Review Request count, Scope Contract, round scope,
-  Reviewer Tree provenance and slot reservation, target and base refs, final HEAD
+  reviewer assignments and pool size, target and base refs, final HEAD
   and diff hash, checks and CI classifications, and terminal outcome once. Do not
   narrate the workflow separately or include empty categories; omission means the
   category is absent, not rendered as `None`.
 - Otherwise, report the policy source, resolved Review Requests, Scope Contract,
-  each round's scope and Reviewer Tree provenance, non-empty Claim Ledger states,
+  each round's scope and reviewer assignments, non-empty Claim Ledger states,
   Verified Findings, rejected claims and remedies, unverified claims and evidence
   gaps, superseded remedies, automation gaps, repairs, Verification and Repair
   Gates, checks and CI classifications, and Review Outcome. Use compact tables or
   lists, omit empty categories, and state repeated clean provenance once. End with
   a compact downstream handoff containing the target and base refs, final HEAD and
   diff hash, terminal outcome, non-empty repair and claim summaries, checks and CI
-  classifications, automation gaps, and Reviewer Tree provenance.
+  classifications, automation gaps, and reviewer assignments.
 
 For each repaired round, explicitly name the Synthesis Gate, Repair Gate, and
 `fixed` outcome. Give each repaired claim one ledger row containing its Reviewer
 provenance and complete state progression. A preflight `incomplete` report states
 that the target, repository history, and forge state remain unchanged. For each
-Composite Review Skill, provenance names the top-level Reviewer and every
-descendant role, and records that preflight accepted the tree with enough agent
-capacity. State the exact Review Request count, identify the fresh top-level
-Reviewer dispatched for each included request, and explain each Delta subset while
+Composite Review Skill, provenance names every required role, its assigned agent,
+and the orchestrator's synthesis. Record peak pool size and any reviewer reuse.
+State the exact Review Request count and explain each Delta subset while
 confirming that the authoritative Review Policy remained unchanged.
 
 Finish with exactly one terminal outcome. The downstream handoff is the sole input
