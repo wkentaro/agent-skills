@@ -1,6 +1,6 @@
 # Restore a Default Review Policy and Composite Review Skills
 
-Status: Accepted
+Status: Superseded by ADR-0003
 
 Supersedes ADR-0001.
 

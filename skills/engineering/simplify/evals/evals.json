@@ -1,0 +1,48 @@
+{
+  "skill_name": "simplify",
+  "evals": [
+    {
+      "id": "apply-four-angles",
+      "prompt": "Use /simplify on the current change. Assume four fresh report-only angle Reviewers complete; Reuse and Simplification both identify `src/parse.ts:12` duplicating the existing `normalizeText` helper at `src/text.ts:4`, direct source inspection verifies the duplication, Efficiency proposes one speculative micro-optimization with no demonstrated cost, Altitude is clean, replacing the duplicate with the helper preserves behavior, and the relevant checks pass. For this evaluation, simulate the workflow and final report without modifying files.",
+      "expected_output": "The four cleanup angles run, duplicate findings collapse into one verified repair, speculative optimization is skipped, and checks pass without behavior changes.",
+      "expectations": [
+        "The output reports the results of Reuse, Simplification, Efficiency, and Altitude",
+        "The duplicate Reuse and Simplification claims are deduplicated and records the independent source evidence",
+        "The speculative micro-optimization is rejected with a reason",
+        "The simulated output applies only the smallest behavior-preserving repair and records passing checks",
+        "The output does not claim to commit, rebase, comment, or push"
+      ]
+    },
+    {
+      "id": "review-fix-report-only",
+      "prompt": "Run simplify as a report-only Review Skill inside review-fix. Assume all four angle Reviewers complete; source inspection lets the Simplification Reviewer verify that `src/config.ts:12` stores a boolean derivable from `options.enabled`, forcing two update paths, and the smallest remedy is reading `options.enabled` directly; the others are clean. For this evaluation, simulate only the simplify Reviewer Tree report without accessing a repository or modifying files.",
+      "expected_output": "A composite report names all four angle Reviewers and returns the verified cleanup finding without changing the target.",
+      "expectations": [
+        "The output identifies the top-level Simplify Reviewer and all four angle Reviewers",
+        "The output returns the verified finding with location, claim, concrete cost, evidence, and smallest remedy",
+        "The output explicitly states that report-only mode left the target unchanged",
+        "The output does not apply a fix, commit, rebase, comment, or push"
+      ]
+    },
+    {
+      "id": "correctness-boundary",
+      "prompt": "Use /simplify on a change where the only Reviewer claim is a possible authentication bypass. Assume the claim is a correctness concern rather than a cleanup issue. For this evaluation, describe the outcome without accessing a repository or modifying files.",
+      "expected_output": "The correctness concern is kept outside simplify's cleanup scope and no cleanup edit is made.",
+      "expectations": [
+        "The output does not convert the possible authentication bypass into a simplify finding",
+        "The output recommends code-review for the correctness concern",
+        "The output makes no edit and does not claim the code is correctness-clean"
+      ]
+    },
+    {
+      "id": "limited-capacity",
+      "prompt": "Use /simplify on the current change with capacity for only one angle Reviewer at a time. Assume every angle returns clean. For this evaluation, simulate the workflow and final report without accessing a repository.",
+      "expected_output": "All four cleanup angles run serially and the clean report accurately reflects the limited concurrency.",
+      "expectations": [
+        "The output reports all four angles ran even though they could not run concurrently",
+        "The output does not replace or omit an angle because capacity is limited",
+        "The output reports that the code was already clean and makes no changes"
+      ]
+    }
+  ]
+}
