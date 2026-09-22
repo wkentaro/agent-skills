@@ -42,7 +42,7 @@ Multiple items may be `[in-progress]` when work was genuinely concurrent or inte
 
 ## IDs and updates
 
-Assign global sequential report IDs: `R-001`, `R-002`, and so on. Treat a legacy `SL-NNN` as the equivalent `R-NNN`, preserving its number. On later invocations within the visible conversation, reuse IDs, update statuses instead of duplicating items, append new IDs, and never renumber. If an earlier status report is no longer visible after compaction, state that ID continuity cannot be guaranteed.
+Assign global sequential report IDs: `R001`, `R002`, and so on. On later invocations within the visible conversation, reuse IDs, update statuses instead of duplicating items, append new IDs, and never renumber. If an earlier status report is no longer visible after compaction, state that ID continuity cannot be guaranteed.
 
 ## Output
 
@@ -57,9 +57,9 @@ Outcome so far
 <one-sentence outcome summary>
 
 <workstream>
-<emoji> [status] R-NNN <action-oriented item>
+<emoji> [status] RNNN <action-oriented item>
   <essential detail only when needed>
-<emoji> [status] R-NNN <action-oriented item>
+<emoji> [status] RNNN <action-oriented item>
 
 Next move
 <one-sentence global recommendation, preferably by ID>
