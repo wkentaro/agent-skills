@@ -1,7 +1,7 @@
 interface:
-  display_name: "Standup"
+  display_name: "Session Status"
   short_description: "Turn this session into a status checklist"
-  default_prompt: "Use $standup to show the current session ledger and recommended next move."
+  default_prompt: "Use $session-status to show the current session ledger and recommended next move."
 
 policy:
   allow_implicit_invocation: false

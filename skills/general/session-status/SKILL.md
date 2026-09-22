@@ -1,12 +1,12 @@
 ---
-name: standup
+name: session-status
 description: Reconstruct the active session as a status checklist with stable IDs and one recommended next move.
 disable-model-invocation: true
 ---
 
-# Standup
+# Session Status
 
-Reconstruct the active conversation as a read-only work ledger. Report state; do not continue the work, call tools to verify it, update native todos, or persist the standup.
+Reconstruct the active conversation as a read-only work ledger. Report state; do not continue the work, call tools to verify it, update native todos, or persist the status report.
 
 ## Scope
 
@@ -42,7 +42,7 @@ Multiple items may be `[in-progress]` when work was genuinely concurrent or inte
 
 ## IDs and updates
 
-Assign global sequential standup IDs: `R-001`, `R-002`, and so on. Treat a legacy `SL-NNN` as the equivalent `R-NNN`, preserving its number. On later invocations within the visible conversation, reuse IDs, update statuses instead of duplicating items, append new IDs, and never renumber. If an earlier standup is no longer visible after compaction, state that ID continuity cannot be guaranteed.
+Assign global sequential report IDs: `R-001`, `R-002`, and so on. Treat a legacy `SL-NNN` as the equivalent `R-NNN`, preserving its number. On later invocations within the visible conversation, reuse IDs, update statuses instead of duplicating items, append new IDs, and never renumber. If an earlier status report is no longer visible after compaction, state that ID continuity cannot be guaranteed.
 
 ## Output
 
@@ -51,7 +51,7 @@ Return a compact plain-text ledger. Use one blank line only between sections, ne
 Use this shape:
 
 ```text
-Standup — <topic>
+Session status — <topic>
 
 Outcome so far
 <one-sentence outcome summary>
@@ -73,6 +73,6 @@ Interpret an optional trailing view:
 
 - `open`: omit `[done]` and `[cancelled]`.
 - `decisions`: show only unresolved decisions.
-- `delta`: show changes since the previous visible standup.
+- `delta`: show changes since the previous visible status report.
 
 With no view, show the complete ledger.
