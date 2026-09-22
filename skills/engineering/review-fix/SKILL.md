@@ -126,8 +126,17 @@ every request that reported an accepted claim and every request whose criteria
 cover the changed files, interfaces, sibling paths, or behavior. Ambiguity widens
 the set. When that set is the complete Review Policy, the next round is Full.
 
-1. Record the target's HEAD, status, and complete diff. Do not edit while
-   Reviewers run.
+### Round barrier
+
+One Review Round owns one immutable target snapshot. Queue early Reviewer reports
+without acting on them. The barrier closes only after every Reviewer Tree finishes
+and the target still matches the round's recorded HEAD, status, and diff hash.
+Direct checks, synthesis, verification, and edits start only after the barrier
+closes. A failed or timed-out tree, or a changed target, makes the outcome
+`incomplete`; a partial round never authorizes a repair.
+
+1. Record the target's HEAD, status, and complete diff. This opens the round
+   barrier.
 2. Select a Full or Delta round and record why each request is included. Dispatch
    one fresh top-level Reviewer per included Review Request, concurrently where
    the preflighted nesting budget allows. Give each tree the same target, base,
@@ -142,9 +151,7 @@ the set. When that set is the complete Review Policy, the next round is Full.
    Skill or ad-hoc focus does not delegate. No Reviewer may modify files, commit,
    comment on a forge, or push. Each finding includes its location, claim,
    evidence, and proposed remedy; a clean Reviewer says so.
-4. Wait for every Reviewer Tree. If any agent fails or times out, or the target
-   changed during review, apply no orchestrator edits and return `incomplete`
-   with the failed request or changed state.
+4. Close the round barrier before continuing.
 5. Route an observable claim that source inspection cannot decide to the
    smallest in-scope direct check. When that check is unavailable, retain one
    automation gap instead of redispatching the same claim as new. Claims that
