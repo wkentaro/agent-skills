@@ -115,6 +115,19 @@
       ]
     },
     {
+      "id": "staggered-review-barrier",
+      "prompt": "Use `/review-fix` with no arguments. Assume the code-review Reviewer Tree returns one repairable Verified Finding immediately, while the simplify, improve-codebase-architecture, and ask-exemplar Reviewer Trees are still running. The remaining trees later return clean reports, the target does not change externally, the repair and relevant checks pass, and the impacted Delta round returns clean. For this evaluation, simulate the workflow and final report without modifying actual files.",
+      "expected_output": "The early finding is queued until every Reviewer Tree finishes; only then does synthesis authorize one repair batch.",
+      "expectations": [
+        "The first Reviewer report is recorded without starting direct checks, synthesis, verification, or edits",
+        "The Full round keeps one HEAD, status, and diff hash until all four Reviewer Trees finish",
+        "The Synthesis Gate starts only after the simplify, improve-codebase-architecture, and ask-exemplar trees return",
+        "The verified repair is applied once as part of the completed round's repair batch",
+        "No Reviewer report becomes stale because of an orchestrator edit made before the round barrier closes",
+        "The impacted Delta round reports clean and the repair remains uncommitted"
+      ]
+    },
+    {
       "id": "broad-repair-final-full",
       "prompt": "Use `/review-fix` with no arguments. Assume the first Full round finds one Verified Finding whose repair changes a public interface. The repair passes its Repair Gate, and every Reviewer returns clean in the required next Full round. For this evaluation, simulate the workflow and final report without modifying actual files.",
       "expected_output": "The public-interface repair cannot use narrow Delta closure, so a clean Full round over the complete policy is required before reporting clean.",
