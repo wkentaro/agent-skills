@@ -26,23 +26,23 @@ A skill that can evaluate the review target within the report-only Reviewer boun
 _Avoid_: Review tool
 
 **Reviewer**:
-A fresh, report-only agent in a Reviewer Tree. The top-level Reviewer owns one Review Request; descendants perform delegation required by a Composite Review Skill. No Reviewer modifies the target.
+A report-only agent assigned a Review Role. The orchestrator prefers fresh Reviewers when completed threads can be closed; otherwise it reuses idle Reviewers and discloses their retained context. No Reviewer modifies the target or delegates work.
 _Avoid_: Review worker
 
-**Reviewer Tree**:
-The top-level Reviewer and any report-only descendants that execute one Review Request. Its complete provenance and failure state roll up to that request.
-_Avoid_: Nested reviewer panel
+**Review Role**:
+One required evaluation within a Review Request, with its own criteria and report. The orchestrator assigns roles directly to a bounded pool of Reviewers and records each assignment. A role is not an agent thread.
+_Avoid_: Reviewer Tree, nested reviewer panel
 
 **Leaf Review Skill**:
 A Review Skill that one Reviewer can execute directly without delegating or modifying the target.
 _Avoid_: Reviewer adapter
 
 **Composite Review Skill**:
-A Review Skill that delegates bounded review work to report-only descendants. Its complete Reviewer Tree is preflighted before a Review Round starts.
+A Review Skill with multiple required Review Roles and aggregation rules. The orchestrator preflights and schedules every role, then synthesizes their separate reports after the round barrier closes.
 _Avoid_: Nested review skill
 
 **Review Round**:
-One bounded execution of a Review Policy: run its Reviewer Trees, verify and aggregate their findings, apply supported fixes, and check the result. A review-fix invocation repeats fixed rounds with the same policy until a round is clean or incomplete.
+One bounded execution of a Review Policy: run its Review Roles, verify and aggregate their findings, apply supported fixes, and check the result. A review-fix invocation repeats fixed rounds with the same policy until a round is clean or incomplete.
 _Avoid_: Review loop
 
 **Verified Finding**:
