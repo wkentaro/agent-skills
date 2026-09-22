@@ -1,10 +1,7 @@
 ---
 name: review-fix
-description: >-
-  Run configurable review-and-fix rounds on a working change until clean.
-  Use for review-fix requests on uncommitted work, a branch, PR, or MR; use the
-  Default Review Policy when no brief is supplied, accept an optional target or
-  custom review brief, and leave supported fixes uncommitted.
+description: Run configurable review-and-fix rounds on a working change until clean.
+disable-model-invocation: true
 ---
 
 # Review fix
