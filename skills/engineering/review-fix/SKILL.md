@@ -22,7 +22,7 @@ Examples:
 /review-fix #123
 /review-fix over-engineering
 /review-fix #123 specification compliance and authorization boundaries
-/review-fix ponytail-review and writing-code
+/review-fix ponytail-review and ask-exemplar
 ```
 
 An explicit brief chooses the Review Policy; no brief uses the Default Review
@@ -85,10 +85,9 @@ mode narrows write-capable skills to report-only evaluation.
 | Review skill | Mode |
 | --- | --- |
 | `code-review` | Standards and Spec review |
-| `brooks-review` | Maintainability review |
+| `simplify` | Report-only Composite Review Skill with Reuse, Simplification, Efficiency, and Altitude Reviewers |
+| `improve-codebase-architecture` | Diff-bounded Deepening analysis using `codebase-design` vocabulary and one report-only exploration descendant; return findings without creating HTML, opening a browser, starting the grilling loop, or writing files |
 | `ask-exemplar` | Embedded Evaluation |
-| `zero-tech-debt` | Analysis only |
-| `writing-code` | Audit mode |
 
 ## Establish the scope contract
 

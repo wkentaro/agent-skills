@@ -3,12 +3,13 @@
   "evals": [
     {
       "id": "default-policy",
-      "prompt": "Use /review-fix on the current working tree. I supplied no arguments. Assume every built-in review skill is installed, all Reviewer trees return clean reports, and enough agent slots are available. For this evaluation, simulate the run and return exactly the resulting report without accessing a repository.",
-      "expected_output": "One clean round using the five-request Default Review Policy without asking for a Review Brief.",
+      "prompt": "Use /review-fix on the current working tree. I supplied no arguments. Assume every built-in review skill is installed, all Reviewer trees return clean reports, enough agent slots are available, and the required verification passes. For this evaluation, simulate the run and return exactly the resulting report without accessing a repository.",
+      "expected_output": "One clean round using the four-request Default Review Policy without asking for a Review Brief.",
       "expectations": [
-        "The output resolves exactly five Review Requests: code-review, brooks-review, ask-exemplar, zero-tech-debt, and writing-code",
+        "The output resolves exactly four Review Requests: code-review, simplify, improve-codebase-architecture, and ask-exemplar",
         "The output does not ask the caller to supply a Review Brief",
-        "The output runs zero-tech-debt in analysis-only mode and writing-code in audit mode",
+        "The output runs simplify in report-only mode with all four cleanup angles",
+        "The output runs improve-codebase-architecture as diff-bounded Deepening analysis using codebase-design vocabulary with a report-only exploration descendant",
         "The output allows code-review to delegate to its report-only Standards and Spec Reviewers",
         "The output reports a clean outcome after one round",
         "The compact clean report omits empty claim, repair, and evidence-gap categories and lists each Reviewer Tree's provenance once",
@@ -17,10 +18,10 @@
     },
     {
       "id": "explicit-review-skills",
-      "prompt": "Run `/review-fix #41 ponytail-review and writing-code`. For this evaluation, assume #41 resolves to an editable PR and both named skills are installed report-only Review Skills that return clean reports; describe the resulting workflow and report without accessing the forge.",
+      "prompt": "Run `/review-fix #41 ponytail-review and ask-exemplar`. For this evaluation, assume #41 resolves to an editable PR, both named skills are installed report-only Review Skills that return clean reports, and the required verification passes; describe the resulting workflow and report without accessing the forge.",
       "expected_output": "One clean round with one fresh report-only Reviewer for each explicitly named skill.",
       "expectations": [
-        "The output resolves exactly two Review Requests, one for ponytail-review and one for writing-code",
+        "The output resolves exactly two Review Requests, one for ponytail-review and one for ask-exemplar",
         "The workflow preflights both skills as report-only and dispatches a fresh Reviewer for each",
         "The output reports a clean outcome after one round and starts no further round",
         "The output does not claim to commit, rebase, comment, push, or choose reviewer models"
@@ -28,7 +29,7 @@
     },
     {
       "id": "ad-hoc-brief",
-      "prompt": "Use `/review-fix authentication bypasses and secret leakage` on the current change. Assume no installed Review Skill unambiguously matches, and the Reviewer claims `auth.py:42 interpolates an untrusted tenant ID into SQL, enabling authentication bypass and secret leakage`; direct inspection disproves that claim. For this evaluation, describe the workflow and final report without modifying files.",
+      "prompt": "Use `/review-fix authentication bypasses and secret leakage` on the current change. Assume no installed Review Skill unambiguously matches, the Reviewer claims `auth.py:42 interpolates an untrusted tenant ID into SQL, enabling authentication bypass and secret leakage`, direct inspection disproves that claim, and the required verification passes. For this evaluation, describe the workflow and final report without modifying files.",
       "expected_output": "One ad-hoc Reviewer covers the whole brief, and its disproved claim is rejected with a clean outcome.",
       "expectations": [
         "The output creates exactly one ad-hoc Review Request rather than splitting the two concerns",
@@ -102,13 +103,13 @@
     },
     {
       "id": "adaptive-middle-round",
-      "prompt": "Use `/review-fix` with no arguments. Assume the first Full round runs the Default Review Policy and only writing-code reports a Verified Finding. Its surgical repair changes only a local code-style concern, changes no interface, cross-module behavior, dependency or security boundary, or contract term, and passes the Repair Gate. A fresh writing-code Reviewer reports no claims in the Delta round, and the orchestrator can demonstrate that the other four Review Requests are unaffected. For this evaluation, simulate the workflow and final report without modifying actual files.",
-      "expected_output": "The run narrows its second round to writing-code and reports clean without an unnecessary five-request rerun because every narrow-repair closure condition is satisfied.",
+      "prompt": "Use `/review-fix` with no arguments. Assume the first Full round runs the Default Review Policy and only simplify reports a Verified Finding for one duplicated local expression. Its surgical repair changes no interface, cross-module behavior, dependency or security boundary, or contract term, and passes the Repair Gate. A fresh simplify Reviewer Tree reports no claims in the Delta round, and the orchestrator can demonstrate that the other three Review Requests are unaffected. For this evaluation, simulate the workflow and final report without modifying actual files.",
+      "expected_output": "The run narrows its second round to simplify and reports clean without an unnecessary four-request rerun because every narrow-repair closure condition is satisfied.",
       "expectations": [
-        "The first Full round dispatches all five Default Review Policy requests",
+        "The first Full round dispatches all four Default Review Policy requests",
         "The repair passes a Repair Gate that rechecks the finding, sibling paths, and relevant checks",
-        "The Delta round dispatches only a fresh writing-code Reviewer and explains why the other four requests are not impacted",
-        "The output states that the authoritative five-request Review Policy remains unchanged",
+        "The Delta round dispatches only a fresh simplify Reviewer Tree and explains why the other three requests are not impacted",
+        "The output states that the authoritative four-request Review Policy remains unchanged",
         "The output reports clean after the Delta round because every accepted claim is verified-closed and every narrow-repair closure condition holds",
         "The output does not dispatch a redundant Final Full round and leaves the repair uncommitted"
       ]
