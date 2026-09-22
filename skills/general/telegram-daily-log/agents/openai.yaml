@@ -1,7 +1,0 @@
-interface:
-  display_name: "Telegram Daily Log"
-  short_description: "Summarize today as a Telegram post"
-  default_prompt: "Use $telegram-daily-log to summarize today’s accomplishments as a Telegram-ready post."
-
-policy:
-  allow_implicit_invocation: false

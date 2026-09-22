@@ -1,0 +1,7 @@
+interface:
+  display_name: "Daily Recap"
+  short_description: "Review today's work before sharing it"
+  default_prompt: "Use $daily-recap to reconstruct today's work sessions as a reviewable summary."
+
+policy:
+  allow_implicit_invocation: false
