@@ -1,0 +1,7 @@
+interface:
+  display_name: "Show Before/After"
+  short_description: "Annotated before/after HTML for a visual change"
+  default_prompt: "Use $show-before-after to build an annotated side-by-side before/after page for this change."
+
+policy:
+  allow_implicit_invocation: true
