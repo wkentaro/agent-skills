@@ -1,0 +1,7 @@
+interface:
+  display_name: "UI Diff"
+  short_description: "Annotated before/after HTML for a UI change"
+  default_prompt: "Use $ui-diff to build an annotated side-by-side before/after page for this UI change."
+
+policy:
+  allow_implicit_invocation: true
