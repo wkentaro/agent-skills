@@ -20,10 +20,10 @@ command or using `--last`.
 Output only this note, without an outer code fence or additional commentary:
 
 ````markdown
-**<Short session topic>**  
-Computer: <computer name>  
-Status: <current outcome or stopping point>  
-Next: <one next step>  
+- Topic: <Short session topic>
+- Computer: <computer name>
+- Status: <current outcome or stopping point>
+- Next: <one next step>
 
 ```sh
 cd <absolute working directory> && codex resume <session ID>
