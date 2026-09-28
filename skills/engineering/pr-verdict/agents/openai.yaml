@@ -1,0 +1,7 @@
+interface:
+  display_name: "PR Verdict"
+  short_description: "Gut-check a PR and give one verdict"
+  default_prompt: "Use $pr-verdict to check whether this PR is meaningful, worth adding, correct, and minimal."
+
+policy:
+  allow_implicit_invocation: false
