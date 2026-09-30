@@ -43,9 +43,11 @@ Feed both sides the same input, data, and seed, so the change is the only differ
 
 ## Output
 
-Write the page to `$TMPDIR/<topic>/before-after.html` and open it in a background browser
-window. Serve the directory with `python3 -m http.server` when fonts, assets, or iframes
-need http. Reply with the path.
+Write the page to `$TMPDIR/<topic>/before-after.html`, open its `file://` URL in a
+background browser window, and reply with the absolute path. `srcdoc` iframes, iframes
+pointed at running servers, and images beside the page all load from `file://`, so skip
+the server. Serve the directory with `python3 -m http.server` only when the page needs
+what browsers block on `file://`: `fetch`, ES module scripts, or local font files.
 
 The page is done when every note has a pin on what it describes and each side matches its
 labelled source.
