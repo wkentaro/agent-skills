@@ -1,11 +1,10 @@
 ---
-name: pr-verdict
+name: pr-review
 description: Gut-check a pull request — is it meaningful, worth adding, correct, and minimal — and give one recommend-* verdict.
-disable-model-invocation: true
 argument-hint: "[PR URL or #N ...]"
 ---
 
-# PR Verdict
+# PR Review
 
 With PRs named, check each one. With none, check every open non-draft PR in the
 current repository that has no `recommend-*` label, one subagent per PR.
@@ -29,5 +28,5 @@ Take the first failure's verdict:
 | Correct or Minimal | `recommend-revise` |
 | Nothing | `recommend-merge` |
 
-Report the verdict, the four answers, and for `revise` the specific changes
-needed. Apply the label only when the user says so.
+Report to the caller the verdict, the four answers, and for `revise` the
+specific changes needed. The caller decides what reaches the PR.
