@@ -1,0 +1,7 @@
+interface:
+  display_name: "Workmap"
+  short_description: "Map this session's projects and tasks"
+  default_prompt: "Use $workmap to show this session's work as a map of projects and tasks with the recommended next move."
+
+policy:
+  allow_implicit_invocation: true
