@@ -1,7 +1,7 @@
 ---
 name: workmap
 description: Map the session's work as an idea, its projects, and their tasks, each with a status and a stable ID. Use when the user asks to divide work into projects or tasks, asks where the session stands, or a reply has to show how pieces of work relate.
-argument-hint: "[projects | tasks | open | decisions | delta]"
+argument-hint: "[open | decisions | delta]"
 ---
 
 # Workmap
@@ -21,7 +21,7 @@ The tree also carries the order of the work:
 
 - A project's tasks form a **stack** in listed order: each builds on the one above it in the list, one PR each, each PR based on the previous one (`gh stack` on GitHub). `∥` marks a task that stands outside the stack.
 - Projects run in parallel, each in its own worktree. `after P1` marks one that waits for another.
-- `touches:` names the area a project changes. Two projects that touch the same area are not orthogonal: merge them, or order them with `after`.
+- `touches:` names the area a project changes; leave it off while the area is unknown. Two projects that touch the same area are not orthogonal: merge them, or order them with `after`.
 
 Nodes that belong to no project go under `Loose`. A session with no projects is all `Loose`.
 
@@ -96,6 +96,7 @@ P2 <goal>                                   touches: <area>   after P1
 ├─ ⏳ [pending] T4 <change>
 ├─ ⏳ [pending] T5 <change>  ∥
 └─ 💬 [discussing] Q1 <open decision>
+💡 [proposed] P3 <goal>
 Loose
 └─ ⏸️ [deferred] T6 <change>
      Resume when: <condition>
