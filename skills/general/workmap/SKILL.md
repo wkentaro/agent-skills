@@ -1,7 +1,7 @@
 ---
 name: workmap
 description: Map the session's work as an idea, its projects, and their tasks, each with a status and a stable ID. Use when the user asks to divide work into projects or tasks, asks where the session stands, or a reply has to show how pieces of work relate.
-argument-hint: "[open | decisions | delta]"
+argument-hint: "[what you want to see]"
 ---
 
 # Workmap
@@ -80,7 +80,7 @@ P2 Sidebar clears the home indicator        after P1
 
 ### Full
 
-When the user invokes the skill by name or asks where the session stands, draw the whole workmap in this shape, with one blank line between sections and none between adjacent nodes:
+When the user invokes the skill by name or asks where the session stands, draw the workmap in this shape, with one blank line between sections and none between adjacent nodes:
 
 ```text
 Workmap — <idea>
@@ -105,10 +105,9 @@ Next move
 <one-sentence recommendation, by ID>
 ```
 
-## Views
+## Request
 
-A full workmap takes an optional trailing view:
+Words after the skill name say what the user wants to see; draw the full workmap that answers it. With no words, draw the whole workmap as it stands.
 
-- `open`: omit `[done]` and `[cancelled]`.
-- `decisions`: show only questions and unresolved choices.
-- `delta`: show changes since the previous visible workmap.
+- A plan to finish, such as the stacked PRs still needed: divide the remaining work into tasks first, then draw each project's whole stack, `[done]` tasks included.
+- A narrower ask, such as what is left or only the decisions: draw only the matching nodes, each under its project line.
