@@ -29,8 +29,8 @@ Take the first failure's verdict:
 | Fails | Verdict |
 | --- | --- |
 | Meaningful, or Worth adding for a technical reason | `recommend-close` |
-| Worth adding as a product or scope call, or Right approach with an alternative that needs its own PR or an architecture decision | `recommend-triage` |
-| Right approach with an alternative this PR can adopt, Correct, or Minimal | `recommend-revise` |
+| Worth adding as a product or scope call | `recommend-triage` |
+| Right approach, Correct, or Minimal | `recommend-revise` |
 | Nothing | `recommend-merge` |
 
 Report to the caller the verdict, the five answers, and for `revise` the
