@@ -1,0 +1,4 @@
+interface:
+  display_name: "Copy Link"
+  short_description: "Copy the current Claude Code or Codex session link"
+  default_prompt: "Use $copy-link to copy this session's link to my clipboard."
