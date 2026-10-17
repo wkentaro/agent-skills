@@ -1,0 +1,27 @@
+{
+  "skill_name": "ambitious-prompt",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/ambitious-prompt Our checkout API has a p95 latency of 900ms. Get it under 700ms before the launch on Friday. Don't add new infrastructure spend.",
+      "expected_output": "A rewritten prompt that aims at the outcome behind the latency goal, sets a far lower latency target, keeps the Friday deadline and the no-new-spend limit, and names an outside judge.",
+      "expectations": [
+        "The rewritten prompt sets a p95 latency target well below 700ms, not above it",
+        "The rewritten prompt keeps the Friday deadline and the no-new-infrastructure-spend limit",
+        "The rewritten prompt names specific profiling or tracing tools or methods rather than a generic instruction to optimize",
+        "The rewritten prompt names a judge other than the model, such as a load test or production trace, with a pass condition",
+        "The reply has one line per axis (altitude, depth, range, judge) on what changed"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/ambitious-prompt Write a short poem for my sister's 30th birthday. She loves hiking and bad puns.",
+      "expected_output": "A rewritten prompt for a better poem that keeps the creative task at its original altitude and says why.",
+      "expectations": [
+        "The rewritten prompt still asks for a birthday poem rather than a larger project or business outcome",
+        "The reply marks altitude unchanged with a reason",
+        "Any added field contributes a technique rather than an instruction to write in that field's voice"
+      ]
+    }
+  ]
+}

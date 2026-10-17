@@ -1,0 +1,7 @@
+interface:
+  display_name: "Ambitious Prompt"
+  short_description: "Rewrite a prompt for more altitude, depth, and range"
+  default_prompt: "Use $ambitious-prompt to rewrite this prompt."
+
+policy:
+  allow_implicit_invocation: false
