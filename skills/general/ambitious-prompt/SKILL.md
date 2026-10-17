@@ -40,7 +40,9 @@ result is checked. Wording that only makes the prompt sound expert is filler.
    5. What new knowledge could the work produce while it is in there, such as an
       earlier signal or a blind spot, and how would held-out data confirm it?
 
-   Raise any numeric target to one that feels unreasonable, and state it as reachable.
+   Push any numeric target to one that feels unreasonably demanding, in the direction the
+   metric improves (a 5s page load becomes 200ms), and state it as reachable. Keep hard
+   limits the user set, such as a budget or a deadline.
    Done when each question has a concrete answer or you have marked it not applicable.
 
 4. **Range.** Restate the deliverable's noun as verbs. A QBR deck becomes "getting
