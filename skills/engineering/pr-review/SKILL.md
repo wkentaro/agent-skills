@@ -16,10 +16,11 @@ Answer five questions in order, each with one line of evidence:
 
 1. **Meaningful**: is the problem real and still present on the base branch?
 2. **Worth adding**: does the value justify the scope and ongoing maintenance?
-3. **Right approach**: would you solve it this way, at the root cause? Fail it
-   only by naming an alternative and what it gains: a different design, or a
-   refactor or architecture change that lands first and shrinks or removes
-   this change.
+3. **Right approach**: would you solve it this way, at the root cause, with a
+   principled design that still holds as the code grows? A patch or special
+   case that later changes must work around fails. Fail it only by naming an
+   alternative and what it gains: a different design, or a refactor or
+   architecture change that lands first and shrinks or removes this change.
 4. **Correct**: does it solve the problem without breaking a caller or edge
    case, and do the tests it adds for changed behavior fail on the base branch?
 5. **Minimal**: is every changed line needed, with nothing that existing code already does?
