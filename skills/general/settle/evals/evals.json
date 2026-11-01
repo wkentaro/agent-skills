@@ -45,6 +45,16 @@
       ]
     },
     {
+      "id": "ignored-file-in-worktree",
+      "prompt": "This session opened PR #10 from fix/env in this repository, and the user merged it. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "fix/env is kept because its worktree holds an ignored .env that exists nowhere else, and the question names .env.",
+      "expectations": [
+        "Branch fix/env, directory .wt/fix/env, and file .wt/fix/env/.env still exist.",
+        "No `git wt -d fix/env` or `git worktree remove` for .wt/fix/env appears in the agent's commands.",
+        "The output names .env as what deleting the worktree would lose."
+      ]
+    },
+    {
       "id": "stacked-branches",
       "prompt": "This session opened PR #5 from refactor/base and PR #6 from fix/child, which is stacked on refactor/base. The user merged #5; #6 is still open. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
       "expected_output": "Neither branch is deleted, because fix/child still tracks refactor/base, and the open PR #6 is asked about.",

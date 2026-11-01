@@ -57,21 +57,27 @@ request. Stale status does not depend on which session created the branch.
 Find a branch's worktree by the `branch` line of `git worktree list
 --porcelain`, since a worktree's directory name can differ from its branch.
 
-Delete a stale branch without asking when all of these hold:
+Delete without asking only what exists somewhere else. A stale branch
+qualifies when nothing in it or its worktree exists only here:
 
-- Its worktree, if any, is clean apart from `.DS_Store`.
+- `git status --porcelain --ignored` in its worktree lists nothing but
+  `.DS_Store`. Ignored files such as `.env` count, since `git wt -d` deletes
+  them with the worktree.
 - No herdr pane has its cwd inside that worktree (`herdr pane list`).
 - No other local branch tracks it as upstream. Delete stacked branches child
   first.
 
-Remove its worktree, if any, with `git wt -d` after deleting the worktree's
-`.DS_Store`, which `git wt -d` refuses to remove. `git wt -d` keeps a
-squash-merged branch, so then delete the branch with `git branch -D` if it
-remains. Then delete its remote branch when one still exists, leased to the
-remote head you checked:
+Any other branch or worktree the session left behind is a loose end. When
+asking about one, name what deleting it would lose: its unique commits and its
+untracked and ignored paths.
+
+Remove a qualifying branch's worktree, if any, with `git wt -d` after deleting
+the worktree's `.DS_Store`, which `git wt -d` refuses to remove. `git wt -d`
+can keep a branch it considers unmerged, such as a squash-merged one, so then
+delete the branch with `git branch -D` if it remains. Then delete its remote
+branch when one still exists, leased to the remote head you checked:
 `git push --force-with-lease=<branch>:<sha> origin :<branch>`. Run
-`git worktree prune` for worktrees whose directory is gone. Any other branch or
-worktree the session left behind is a loose end.
+`git worktree prune` for worktrees whose directory is gone.
 
 ### Asking
 

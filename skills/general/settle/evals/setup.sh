@@ -94,6 +94,14 @@ case "$id" in
     touch .wt/fix/a/.DS_Store
     echo "notes worth keeping" > .wt/fix/b/notes.txt
     ;;
+  ignored-file-in-worktree)
+    echo .env >> .gitignore && git commit -qam "chore: ignore .env" && git push -q origin main
+    branch_with_commit fix/env env.txt
+    squash_merge fix/env 10
+    pr 10 fix/env MERGED
+    git worktree add -q .wt/fix/env fix/env
+    echo "API_TOKEN=only-copy" > .wt/fix/env/.env
+    ;;
   stacked-branches)
     git checkout -q -b refactor/base main
     commit base.txt "refactor: base"
