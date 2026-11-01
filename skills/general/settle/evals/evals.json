@@ -1,0 +1,79 @@
+{
+  "skill_name": "settle",
+  "setup": "Build each case with `evals/setup.sh <id> <empty-dir>`. Run the agent from `<dir>/repo` with `PATH=\"<dir>/bin:$PATH\"`, the variables in `<dir>/env`, and `HERDR_SOCKET_PATH` unset, so `gh` and `herdr` are fakes that log every call to `<dir>/calls.log`. Grade from the agent's output, `calls.log`, and the repository state afterward.",
+  "evals": [
+    {
+      "id": "squash-merged-then-committed",
+      "prompt": "This session opened PR #1 from feat/a in this repository, and the user merged it. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "feat/a is reported as having a commit beyond the merged pull request head and is asked about, not deleted.",
+      "expectations": [
+        "Local branch feat/a still exists afterward and still contains the commit \"feat: follow-up after merge\".",
+        "No `git branch -D feat/a`, `git branch -d feat/a`, or remote deletion of feat/a appears in the agent's commands.",
+        "The output names feat/a as a loose end and asks what to do with it.",
+        "No `herdr pane close` or `herdr tab close` appears in calls.log, because the session is not settled."
+      ]
+    },
+    {
+      "id": "worktree-dir-differs-from-branch",
+      "prompt": "This session opened PR #2 from test/wait-for-logs in this repository, and the user merged it. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "The worktree holding test/wait-for-logs (directory .wt/faster-ci) is removed with its branch, and the faster-ci branch with unmerged work (directory .wt/test/wait-for-logs) is kept.",
+      "expectations": [
+        "Branch test/wait-for-logs no longer exists locally, and directory .wt/faster-ci is gone.",
+        "Branch faster-ci still exists with its commit \"wip: unmerged local work\", and directory .wt/test/wait-for-logs still exists.",
+        "The remote branch test/wait-for-logs is deleted from origin.",
+        "The primary checkout is still on main."
+      ]
+    },
+    {
+      "id": "dirty-worktrees",
+      "prompt": "This session opened PRs #3 from fix/a and #4 from fix/b in this repository, and the user merged both. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "fix/a, dirty only with .DS_Store, is deleted with its worktree; fix/b, holding an untracked notes.txt, is kept and asked about.",
+      "expectations": [
+        "Branch fix/a and directory .wt/fix/a are gone.",
+        "Branch fix/b and file .wt/fix/b/notes.txt still exist.",
+        "The output names fix/b or its notes.txt as a loose end and asks what to do with it."
+      ]
+    },
+    {
+      "id": "stacked-branches",
+      "prompt": "This session opened PR #5 from refactor/base and PR #6 from fix/child, which is stacked on refactor/base. The user merged #5; #6 is still open. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "Neither branch is deleted, because fix/child still tracks refactor/base, and the open PR #6 is asked about.",
+      "expectations": [
+        "Branches refactor/base and fix/child both still exist locally.",
+        "fix/child still has refactor/base as its upstream.",
+        "The output asks about the open PR #6."
+      ]
+    },
+    {
+      "id": "primary-on-merged-branch",
+      "prompt": "This session worked on feat/done in the primary checkout of this repository and opened PR #7, which the user merged. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "The primary checkout is switched to main and fast-forwarded to origin/main, and feat/done is then deleted as stale.",
+      "expectations": [
+        "The primary checkout is on main afterward.",
+        "Local main points at the same commit as origin/main.",
+        "Local branch feat/done no longer exists."
+      ]
+    },
+    {
+      "id": "worktree-with-live-pane",
+      "prompt": "This session opened PR #8 from fix/live in this repository, and the user merged it. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "fix/live is kept because another herdr pane with a working agent has its cwd inside .wt/fix/live, and it is asked about.",
+      "expectations": [
+        "calls.log shows `herdr pane list` was called.",
+        "Branch fix/live and directory .wt/fix/live still exist.",
+        "The output names the other pane or its worktree as the reason fix/live was kept."
+      ]
+    },
+    {
+      "id": "split-tab",
+      "prompt": "This session answered a question about this repository's README and changed nothing. The user now types /settle.",
+      "expected_output": "Nothing is left and nothing is saved; the agent closes only its own pane because the tab holds two panes.",
+      "expectations": [
+        "calls.log contains `herdr tab get w1:t1` before any close command.",
+        "calls.log contains `herdr pane close w1:p1`.",
+        "calls.log contains no `herdr tab close`.",
+        "The output says there is no lesson to save, and no file under ~/ghq/github.com/wkentaro/secondbrain changes."
+      ]
+    }
+  ]
+}
