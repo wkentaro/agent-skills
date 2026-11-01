@@ -50,12 +50,12 @@ For the session itself:
 
 ### Stale branches and worktrees
 
-A branch is **stale** when its local head, and its fetched remote head if the
-remote branch still exists, each either is contained in the default branch or
-equals the `headRefOid` of its merged pull request. Stale status does not
-depend on which session created the branch. Find a branch's worktree by the
-`branch` line of `git worktree list --porcelain`, since a worktree's directory
-name can differ from its branch.
+A branch other than the default branch is **stale** when its local head, and
+its fetched remote head if the remote branch still exists, each either is
+contained in the default branch or equals the `headRefOid` of its merged pull
+request. Stale status does not depend on which session created the branch.
+Find a branch's worktree by the `branch` line of `git worktree list
+--porcelain`, since a worktree's directory name can differ from its branch.
 
 Delete a stale branch without asking when all of these hold:
 
@@ -64,9 +64,10 @@ Delete a stale branch without asking when all of these hold:
 - No other local branch tracks it as upstream. Delete stacked branches child
   first.
 
-Use `git wt -d` when the branch has a worktree, after removing its
-`.DS_Store`, which `git wt -d` refuses to delete, and `git branch -D`
-otherwise. Then delete its remote branch when one still exists, leased to the
+Remove its worktree, if any, with `git wt -d` after deleting the worktree's
+`.DS_Store`, which `git wt -d` refuses to remove. `git wt -d` keeps a
+squash-merged branch, so then delete the branch with `git branch -D` if it
+remains. Then delete its remote branch when one still exists, leased to the
 remote head you checked:
 `git push --force-with-lease=<branch>:<sha> origin :<branch>`. Run
 `git worktree prune` for worktrees whose directory is gone. Any other branch or
