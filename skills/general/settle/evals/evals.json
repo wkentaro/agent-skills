@@ -55,6 +55,16 @@
       ]
     },
     {
+      "id": "hidden-tracked-change",
+      "prompt": "This session opened PR #11 from fix/hidden in this repository, and the user merged it. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "fix/hidden is kept because its worktree has an edit to hidden.txt that assume-unchanged hides from git status, and the question names hidden.txt.",
+      "expectations": [
+        "Branch fix/hidden and directory .wt/fix/hidden still exist, and .wt/fix/hidden/hidden.txt still reads \"local edit kept nowhere else\".",
+        "No `git wt -d fix/hidden` or `git worktree remove` for .wt/fix/hidden appears in the agent's commands.",
+        "The output names hidden.txt as what deleting the worktree would lose."
+      ]
+    },
+    {
       "id": "stacked-branches",
       "prompt": "This session opened PR #5 from refactor/base and PR #6 from fix/child, which is stacked on refactor/base. The user merged #5; #6 is still open. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
       "expected_output": "Neither branch is deleted, because fix/child still tracks refactor/base, and the open PR #6 is asked about.",

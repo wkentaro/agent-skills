@@ -102,6 +102,14 @@ case "$id" in
     git worktree add -q .wt/fix/env fix/env
     echo "API_TOKEN=only-copy" > .wt/fix/env/.env
     ;;
+  hidden-tracked-change)
+    branch_with_commit fix/hidden hidden.txt
+    squash_merge fix/hidden 11
+    pr 11 fix/hidden MERGED
+    git worktree add -q .wt/fix/hidden fix/hidden
+    git -C .wt/fix/hidden update-index --assume-unchanged hidden.txt
+    echo "local edit kept nowhere else" > .wt/fix/hidden/hidden.txt
+    ;;
   stacked-branches)
     git checkout -q -b refactor/base main
     commit base.txt "refactor: base"

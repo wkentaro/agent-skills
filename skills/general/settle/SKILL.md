@@ -63,6 +63,9 @@ qualifies when nothing in it or its worktree exists only here:
 - `git status --porcelain --ignored` in its worktree lists nothing but
   `.DS_Store`. Ignored files such as `.env` count, since `git wt -d` deletes
   them with the worktree.
+- Every line of `git ls-files -v` in its worktree starts with `H`. Other tags,
+  such as `h` for assume-unchanged or `S` for skip-worktree, hide edits from
+  `git status`.
 - No herdr pane has its cwd inside that worktree (`herdr pane list`).
 - No other local branch tracks it as upstream. Delete stacked branches child
   first.
