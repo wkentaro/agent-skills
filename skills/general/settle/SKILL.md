@@ -50,11 +50,12 @@ For the session itself:
 
 ### Stale branches and worktrees
 
-A branch is **stale** when its pull request is merged and the local head
-equals that pull request's `headRefOid`, or when the default branch contains
-it. Stale status does not depend on which session created the branch. Find a
-branch's worktree by the `branch` line of `git worktree list --porcelain`,
-since a worktree's directory name can differ from its branch.
+A branch is **stale** when its local head, and its fetched remote head if the
+remote branch still exists, each either is contained in the default branch or
+equals the `headRefOid` of its merged pull request. Stale status does not
+depend on which session created the branch. Find a branch's worktree by the
+`branch` line of `git worktree list --porcelain`, since a worktree's directory
+name can differ from its branch.
 
 Delete a stale branch without asking when all of these hold:
 
@@ -64,10 +65,12 @@ Delete a stale branch without asking when all of these hold:
   first.
 
 Use `git wt -d` when the branch has a worktree, after removing its
-`.DS_Store`, which `git wt -d` refuses to delete. Use `git branch -D` otherwise,
-then delete its remote branch when one still exists. Run `git worktree prune`
-for worktrees whose directory is gone. Any other branch or worktree the
-session left behind is a loose end.
+`.DS_Store`, which `git wt -d` refuses to delete, and `git branch -D`
+otherwise. Then delete its remote branch when one still exists, leased to the
+remote head you checked:
+`git push --force-with-lease=<branch>:<sha> origin :<branch>`. Run
+`git worktree prune` for worktrees whose directory is gone. Any other branch or
+worktree the session left behind is a loose end.
 
 ### Asking
 
