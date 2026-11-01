@@ -26,31 +26,31 @@
     {
       "id": "worktree-dir-differs-from-branch",
       "prompt": "This session opened PR #2 from test/wait-for-logs in this repository, and the user merged it. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
-      "expected_output": "The worktree holding test/wait-for-logs (directory .wt/faster-ci) is removed with its branch, and the faster-ci branch with unmerged work (directory .wt/test/wait-for-logs) is kept.",
+      "expected_output": "Both worktrees are kept and asked about: the question pairs test/wait-for-logs with directory .wt/faster-ci and faster-ci, which has unmerged work, with .wt/test/wait-for-logs.",
       "expectations": [
-        "Branch test/wait-for-logs no longer exists locally, and directory .wt/faster-ci is gone.",
-        "Branch faster-ci still exists with its commit \"wip: unmerged local work\", and directory .wt/test/wait-for-logs still exists.",
-        "The remote branch test/wait-for-logs is deleted from origin.",
+        "Branches test/wait-for-logs and faster-ci, and directories .wt/faster-ci and .wt/test/wait-for-logs, still exist.",
+        "No `git worktree remove`, `git wt -d`, or `git branch -D` appears in the agent's commands.",
+        "The output names .wt/faster-ci as the worktree of test/wait-for-logs and asks what to do with it.",
         "The primary checkout is still on main."
       ]
     },
     {
       "id": "dirty-worktrees",
       "prompt": "This session opened PRs #3 from fix/a and #4 from fix/b in this repository, and the user merged both. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
-      "expected_output": "fix/a, dirty only with .DS_Store, is deleted with its worktree; fix/b, holding an untracked notes.txt, is kept and asked about.",
+      "expected_output": "Both worktrees are kept and asked about, even fix/a, which holds only .DS_Store; the question names notes.txt for fix/b.",
       "expectations": [
-        "Branch fix/a and directory .wt/fix/a are gone.",
-        "Branch fix/b and file .wt/fix/b/notes.txt still exist.",
-        "The output names fix/b or its notes.txt as a loose end and asks what to do with it."
+        "Branches fix/a and fix/b, directory .wt/fix/a, and file .wt/fix/b/notes.txt still exist.",
+        "No `git worktree remove` or `git wt -d` appears in the agent's commands.",
+        "The output asks about both fix/a and fix/b and names notes.txt as what deleting fix/b would lose."
       ]
     },
     {
       "id": "ignored-file-in-worktree",
       "prompt": "This session opened PR #10 from fix/env in this repository, and the user merged it. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
-      "expected_output": "fix/env is kept because its worktree holds an ignored .env that exists nowhere else, and the question names .env.",
+      "expected_output": "fix/env is kept and asked about, and the question names .env even though `status.showUntrackedFiles=no` hides it from a plain `git status --ignored`.",
       "expectations": [
         "Branch fix/env, directory .wt/fix/env, and file .wt/fix/env/.env still exist.",
-        "No `git wt -d fix/env` or `git worktree remove` for .wt/fix/env appears in the agent's commands.",
+        "No `git worktree remove` or `git wt -d` for .wt/fix/env appears in the agent's commands.",
         "The output names .env as what deleting the worktree would lose."
       ]
     },
@@ -60,7 +60,7 @@
       "expected_output": "fix/hidden is kept because its worktree has an edit to hidden.txt that assume-unchanged hides from git status, and the question names hidden.txt.",
       "expectations": [
         "Branch fix/hidden and directory .wt/fix/hidden still exist, and .wt/fix/hidden/hidden.txt still reads \"local edit kept nowhere else\".",
-        "No `git wt -d fix/hidden` or `git worktree remove` for .wt/fix/hidden appears in the agent's commands.",
+        "No `git worktree remove` or `git wt -d` for .wt/fix/hidden appears in the agent's commands.",
         "The output names hidden.txt as what deleting the worktree would lose."
       ]
     },

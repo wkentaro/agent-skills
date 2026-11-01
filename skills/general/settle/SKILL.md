@@ -57,29 +57,27 @@ request. Stale status does not depend on which session created the branch.
 Find a branch's worktree by the `branch` line of `git worktree list
 --porcelain`, since a worktree's directory name can differ from its branch.
 
-Delete without asking only what exists somewhere else. A stale branch
-qualifies when nothing in it or its worktree exists only here:
+Delete without asking only a stale branch that no linked worktree has checked
+out and no other local branch tracks as upstream. Its commits exist on the
+default branch or in its merged pull request, so nothing is lost. Delete
+stacked branches child first.
 
-- `git status --porcelain --ignored` in its worktree lists nothing but
-  `.DS_Store`. Ignored files such as `.env` count, since `git wt -d` deletes
-  them with the worktree.
-- Every line of `git ls-files -v` in its worktree starts with `H`. Other tags,
-  such as `h` for assume-unchanged or `S` for skip-worktree, hide edits from
-  `git status`.
-- No herdr pane has its cwd inside that worktree (`herdr pane list`).
-- No other local branch tracks it as upstream. Delete stacked branches child
-  first.
+Every other branch the session left behind is a loose end, and so is every
+linked worktree, however clean it looks: Git settings and index flags can hide
+a worktree's files from `git status`. When asking about one, name what
+deleting it would lose:
 
-Any other branch or worktree the session left behind is a loose end. When
-asking about one, name what deleting it would lose: its unique commits and its
-untracked and ignored paths.
+- its unique commits;
+- every path `git status --porcelain --ignored --untracked-files=all` lists
+  in its worktree, ignored files such as `.env` included;
+- every path whose `git ls-files -v` tag is not `H`, such as `h` for
+  assume-unchanged or `S` for skip-worktree;
+- the herdr pane whose cwd is inside the worktree (`herdr pane list`).
 
-Remove a qualifying branch's worktree, if any, with `git wt -d` after deleting
-the worktree's `.DS_Store`, which `git wt -d` refuses to remove. `git wt -d`
-can keep a branch it considers unmerged, such as a squash-merged one, so then
-delete the branch with `git branch -D` if it remains. Then delete its remote
-branch when one still exists, leased to the remote head you checked:
-`git push --force-with-lease=<branch>:<sha> origin :<branch>`. Run
+To delete a branch, whether asked or not: if the user chose to delete its
+worktree, first run `git worktree remove --force <path>`. Then run
+`git branch -D`, and delete the remote branch when one still exists, leased to the remote head you
+checked: `git push --force-with-lease=<branch>:<sha> origin :<branch>`. Run
 `git worktree prune` for worktrees whose directory is gone.
 
 ### Asking

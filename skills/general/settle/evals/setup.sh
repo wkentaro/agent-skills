@@ -101,6 +101,7 @@ case "$id" in
     pr 10 fix/env MERGED
     git worktree add -q .wt/fix/env fix/env
     echo "API_TOKEN=only-copy" > .wt/fix/env/.env
+    git config status.showUntrackedFiles no
     ;;
   hidden-tracked-change)
     branch_with_commit fix/hidden hidden.txt
