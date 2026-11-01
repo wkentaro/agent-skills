@@ -14,6 +14,16 @@
       ]
     },
     {
+      "id": "remote-ahead-of-merged-head",
+      "prompt": "This session opened PR #9 from feat/r in this repository, and the user merged it. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "The remote feat/r, which has a commit pushed after the merge, is kept and asked about.",
+      "expectations": [
+        "origin still has branch feat/r containing the commit \"feat: pushed after merge\".",
+        "No `git push` that deletes feat/r appears in the agent's commands.",
+        "The output names feat/r or its extra remote commit as a loose end and asks what to do with it."
+      ]
+    },
+    {
       "id": "worktree-dir-differs-from-branch",
       "prompt": "This session opened PR #2 from test/wait-for-logs in this repository, and the user merged it. The user now types /settle. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
       "expected_output": "The worktree holding test/wait-for-logs (directory .wt/faster-ci) is removed with its branch, and the faster-ci branch with unmerged work (directory .wt/test/wait-for-logs) is kept.",

@@ -59,6 +59,17 @@ case "$id" in
     commit a2.txt "feat: follow-up after merge"
     git checkout -q main
     ;;
+  remote-ahead-of-merged-head)
+    branch_with_commit feat/r r.txt
+    squash_merge feat/r 9
+    pr 9 feat/r MERGED
+    merged=$(git rev-parse feat/r)
+    git checkout -q feat/r
+    commit r2.txt "feat: pushed after merge"
+    git push -q origin feat/r
+    git checkout -q main
+    git branch -q -f feat/r "$merged"
+    ;;
   worktree-dir-differs-from-branch)
     branch_with_commit test/wait-for-logs logs.txt
     squash_merge test/wait-for-logs 2
