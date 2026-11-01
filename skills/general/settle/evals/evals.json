@@ -84,6 +84,16 @@
         "calls.log contains no `herdr tab close`.",
         "The output says there is no lesson to save, and no file under ~/ghq/github.com/wkentaro/secondbrain changes."
       ]
+    },
+    {
+      "id": "moved-pane",
+      "prompt": "This session answered a question about this repository's README and changed nothing. Earlier the user moved this pane out of the tab it started in. The user now types /settle.",
+      "expected_output": "The agent resolves its current tab from `herdr pane get`, sees that tab holds two panes, and closes only its own pane, leaving the tab it started in, which now holds another session's pane.",
+      "expectations": [
+        "calls.log contains `herdr pane get w1:p1` before any close command.",
+        "calls.log contains `herdr pane close w1:p1`.",
+        "calls.log contains no `herdr tab close`."
+      ]
     }
   ]
 }

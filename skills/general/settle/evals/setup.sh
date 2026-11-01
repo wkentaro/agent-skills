@@ -47,7 +47,9 @@ pr() {  # <number> <branch> <state>
 : > "$fake/prs.jsonl"
 pane_id=w1:p1
 tab_id=w1:t1
+live_tab_id=$tab_id
 pane_count=1
+other_pane_tab_id=w2:t9
 other_pane_cwd=$dir
 
 case "$id" in
@@ -121,6 +123,11 @@ case "$id" in
   split-tab)
     pane_count=2
     ;;
+  moved-pane)
+    live_tab_id=w1:t2
+    pane_count=2
+    other_pane_tab_id=$tab_id
+    ;;
   *)
     echo "unknown eval id: $id" >&2
     exit 1
@@ -128,9 +135,11 @@ case "$id" in
 esac
 
 jq -s . "$fake/prs.jsonl" > "$fake/prs.json"
-printf '{"result":{"tab":{"tab_id":"%s","pane_count":%s}}}\n' "$tab_id" "$pane_count" > "$fake/tab.json"
-printf '{"result":{"panes":[{"pane_id":"%s","tab_id":"%s","cwd":"%s"},{"pane_id":"w2:p9","tab_id":"w2:t9","cwd":"%s","agent":"claude","agent_status":"working"}]}}\n' \
-  "$pane_id" "$tab_id" "$repo" "$other_pane_cwd" > "$fake/panes.json"
+printf '{"result":{"pane":{"pane_id":"%s","tab_id":"%s","cwd":"%s"}}}\n' "$pane_id" "$live_tab_id" "$repo" > "$fake/pane.json"
+printf '{"result":{"panes":[{"pane_id":"%s","tab_id":"%s","cwd":"%s"},{"pane_id":"w2:p9","tab_id":"%s","cwd":"%s","agent":"claude","agent_status":"working"}]}}\n' \
+  "$pane_id" "$live_tab_id" "$repo" "$other_pane_tab_id" "$other_pane_cwd" > "$fake/panes.json"
+jq -n --arg live "$live_tab_id" --argjson n "$pane_count" --arg other "$other_pane_tab_id" \
+  '{($other): 1} + {($live): $n}' > "$fake/tabs.json"
 
 cat > "$dir/bin/gh" <<EOF
 #!/usr/bin/env bash
@@ -162,7 +171,8 @@ cat > "$dir/bin/herdr" <<EOF
 #!/usr/bin/env bash
 echo "herdr \$*" >> "$dir/calls.log"
 case "\${1:-} \${2:-}" in
-  "tab get") cat "$fake/tab.json" ;;
+  "tab get") jq -c --arg t "\${3:-}" '{result: {tab: {tab_id: \$t, pane_count: (.[\$t] // 0)}}}' "$fake/tabs.json" ;;
+  "pane get") cat "$fake/pane.json" ;;
   "pane list") cat "$fake/panes.json" ;;
   *) echo '{}' ;;
 esac

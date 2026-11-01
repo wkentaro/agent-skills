@@ -102,7 +102,9 @@ not need. Commit and push to `main`, and confirm the push succeeded.
 
 ## 4. Close the pane
 
-Do this last, since it ends the session. When `HERDR_PANE_ID` is set, read
-`herdr tab get "$HERDR_TAB_ID"`. Run `herdr tab close "$HERDR_TAB_ID"` when
-its `pane_count` is 1, and `herdr pane close "$HERDR_PANE_ID"` otherwise. When
+Do this last, since it ends the session. When `HERDR_PANE_ID` is set, read the
+pane's current tab from `herdr pane get "$HERDR_PANE_ID"`, since
+`HERDR_TAB_ID` keeps the tab the pane started in after it moves. Then read
+`herdr tab get` for that tab. Run `herdr tab close` on it when its
+`pane_count` is 1, and `herdr pane close "$HERDR_PANE_ID"` otherwise. When
 `HERDR_PANE_ID` is not set, say that no herdr pane was found and stop.
