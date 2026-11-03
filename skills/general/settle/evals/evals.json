@@ -96,13 +96,13 @@
     },
     {
       "id": "split-tab",
-      "prompt": "This session answered a question about this repository's README and changed nothing. The user now types /settle.",
+      "prompt": "This session answered a question about this repository's README and changed nothing. The user now types /settle. Use ../secondbrain in place of ~/ghq/github.com/wkentaro/secondbrain.",
       "expected_output": "Nothing is left and nothing is saved; the agent closes only its own pane because the tab holds two panes.",
       "expectations": [
         "calls.log contains `herdr tab get w1:t1` before any close command.",
         "calls.log contains `herdr pane close w1:p1`.",
         "calls.log contains no `herdr tab close`.",
-        "The output says there is no lesson to save, and no file under ~/ghq/github.com/wkentaro/secondbrain changes."
+        "The output says there is no lesson to save, and no file under ../secondbrain changes."
       ]
     },
     {
@@ -113,6 +113,47 @@
         "calls.log contains `herdr pane get w1:p1` before any close command.",
         "calls.log contains `herdr pane close w1:p1`.",
         "calls.log contains no `herdr tab close`."
+      ]
+    },
+    {
+      "id": "scratch-and-passed-offer",
+      "prompt": "This session made the scratch directory ../scratch with mktemp -d to draft a README change, then the user said they would edit the README themselves. Earlier the session asked \"Want me to also add a badge?\" and the user moved on to that next request without answering. The user now types /settle. Use ../secondbrain in place of ~/ghq/github.com/wkentaro/secondbrain. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "The scratch directory is removed and the badge offer dropped, both without asking, and the agent closes its tab.",
+      "expectations": [
+        "Directory ../scratch no longer exists.",
+        "The output asks the user no question.",
+        "calls.log contains `herdr tab close w1:t1`."
+      ]
+    },
+    {
+      "id": "lesson-written-without-asking",
+      "prompt": "This session changed nothing in this repository. After two failed tries it found that `gh pr view` run outside a Git repository returns an empty body, so piping it into `gh pr edit --body-file` wiped a pull request body; passing `-R owner/repo` fixed it. It also saw that README.md has one line. The user now types /settle. Use ../secondbrain in place of ~/ghq/github.com/wkentaro/secondbrain. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "The gh lesson is written to secondbrain and pushed without asking, the README fact is dropped, and the agent closes its tab.",
+      "expectations": [
+        "../secondbrain.git main has a commit after \"chore: init\" whose diff mentions `-R` and an empty body.",
+        "No secondbrain file mentions that README.md has one line.",
+        "The output asks the user no question.",
+        "calls.log contains `herdr tab close w1:t1`."
+      ]
+    },
+    {
+      "id": "skill-candidate-asked",
+      "prompt": "This session changed nothing in this repository. Over three corrections from the user it worked out a five-step monthly release procedure for this repository: bump the version, tag, build, upload, and announce. The user said they run it every month. The user now types /settle. Use ../secondbrain in place of ~/ghq/github.com/wkentaro/secondbrain. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "The agent proposes turning the release procedure into a skill and asks before creating it, so the session is not settled and the pane stays open.",
+      "expectations": [
+        "No SKILL.md file is created anywhere.",
+        "The output asks whether to make the release procedure a skill.",
+        "No `herdr pane close` or `herdr tab close` appears in calls.log."
+      ]
+    },
+    {
+      "id": "defect-offer-passed",
+      "prompt": "This session changed nothing in this repository. While answering a question, it ran the test suite on main and saw `test_parse_dates` fail with `AssertionError: expected 2026-01-31, got 2026-02-01`. It asked \"Want me to file an issue for the failing test on main?\", and the user moved on to another request without answering. The user now types /settle. Use ../secondbrain in place of ~/ghq/github.com/wkentaro/secondbrain. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "The failing test on main is filed as an issue without asking, even though the user moved past the offer, and the agent closes its tab.",
+      "expectations": [
+        "calls.log contains a `gh issue create` call that names test_parse_dates.",
+        "The output asks the user no question.",
+        "calls.log contains `herdr tab close w1:t1`."
       ]
     }
   ]
