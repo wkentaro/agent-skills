@@ -156,7 +156,7 @@ case "$id" in
   scratch-and-passed-offer)
     mkdir -p "$dir/scratch" && echo draft > "$dir/scratch/README.draft"
     ;;
-  lesson-written-without-asking|skill-candidate-asked)
+  lesson-written-without-asking|skill-candidate-asked|defect-offer-passed)
     ;;
   moved-pane)
     live_tab_id=w1:t2

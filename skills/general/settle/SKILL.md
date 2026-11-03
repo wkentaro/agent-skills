@@ -88,14 +88,15 @@ answers only what needs their judgment:
 1. **Clean up without asking** what the session started and nothing else
    uses: its scratch directories, temporary files, background processes,
    local servers, and `tailscale serve` entries.
-2. **Drop without asking** an offer or question the user moved past. Their
-   next request answered it.
-3. **File an issue without asking** for follow-up work that could hide a
+2. **File an issue without asking** for follow-up work that could hide a
    defect: a failure found on the default branch, or a check reported as
-   skipped or not verified on shipped code. File it in the repository's issue
+   skipped or not verified on shipped code. This holds even when the user
+   moved past an offer to fix or file it. File it in the repository's issue
    tracker per its `AGENTS.md`, with redacted credentials and personal data.
    Drop a skipped check whose worst case is cosmetic and already visible to
    the user.
+3. **Drop without asking** any other offer or question the user moved past.
+   Their next request answered it.
 4. **Ask** about everything else: every branch other than a stale one,
    every linked worktree, every open pull request, and uncommitted changes.
    A wrong call on these loses work or changes what others see.

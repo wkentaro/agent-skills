@@ -145,6 +145,16 @@
         "The output asks whether to make the release procedure a skill.",
         "No `herdr pane close` or `herdr tab close` appears in calls.log."
       ]
+    },
+    {
+      "id": "defect-offer-passed",
+      "prompt": "This session changed nothing in this repository. While answering a question, it ran the test suite on main and saw `test_parse_dates` fail with `AssertionError: expected 2026-01-31, got 2026-02-01`. It asked \"Want me to file an issue for the failing test on main?\", and the user moved on to another request without answering. The user now types /settle. Use ../secondbrain in place of ~/ghq/github.com/wkentaro/secondbrain. The user cannot answer questions in this run: when the skill says to ask, print the questions and stop.",
+      "expected_output": "The failing test on main is filed as an issue without asking, even though the user moved past the offer, and the agent closes its tab.",
+      "expectations": [
+        "calls.log contains a `gh issue create` call that names test_parse_dates.",
+        "The output asks the user no question.",
+        "calls.log contains `herdr tab close w1:t1`."
+      ]
     }
   ]
 }
