@@ -21,8 +21,8 @@ check on this output.
 ## 2. Clear the loose ends
 
 A **loose end** is anything that keeps the session from being settled. The
-session is **settled** when every check below passes, or the user has chosen to
-leave what fails.
+session is **settled** when every check below passes, or each failure has been
+resolved by its tier (see Deciding) or left by the user's choice.
 
 For each repository the session touched:
 
@@ -80,15 +80,33 @@ worktree, first run `git worktree remove --force <path>`. Then run
 checked: `git push --force-with-lease=<branch>:<sha> origin :<branch>`. Run
 `git worktree prune` for worktrees whose directory is gone.
 
-### Asking
+### Deciding
 
-Ask about every remaining loose end in one batch through native structured
-input (`AskUserQuestion` in Claude Code, `request_user_input` in Codex). Offer
-the choices that fit each one, such as finishing it now, filing an issue,
-keeping or deleting an artifact, or leaving it. A worktree another pane is in
-stays until that pane's session settles itself, so offer only waiting or
-leaving it. Do what the user picks, then
-run the checks again. This step is done when the session is settled.
+Sort each remaining loose end into the first tier that fits, so the user
+answers only what needs their judgment:
+
+1. **Clean up without asking** what the session started and nothing else
+   uses: its scratch directories, temporary files, background processes,
+   local servers, and `tailscale serve` entries.
+2. **Drop without asking** an offer or question the user moved past. Their
+   next request answered it.
+3. **File an issue without asking** for follow-up work that could hide a
+   defect: a failure found on the default branch, or a check reported as
+   skipped or not verified on shipped code. File it in the repository's issue
+   tracker per its `AGENTS.md`, with redacted credentials and personal data.
+   Drop a skipped check whose worst case is cosmetic and already visible to
+   the user.
+4. **Ask** about everything else: every branch other than a stale one,
+   every linked worktree, every open pull request, and uncommitted changes.
+   A wrong call on these loses work or changes what others see.
+
+Ask in one batch through native structured input (`AskUserQuestion` in
+Claude Code, `request_user_input` in Codex). Offer the choices that fit each
+one, such as finishing it now, filing an issue, keeping or deleting an
+artifact, or leaving it. A worktree another pane is in stays until that
+pane's session settles itself, so offer only waiting or leaving it. Do what
+the user picks, then run the checks again. This step is done when the session
+is settled.
 
 ## 3. File the lessons
 
@@ -97,15 +115,23 @@ session does or knows: a decision and its reason, a gotcha, a working recipe,
 a fact that took real digging to find. Work that a repository, its history, an
 issue, or a pull request already records is not a lesson.
 
-When the session has no lesson, write nothing and say so in one line.
+Keep a lesson only when rediscovering it would cost a future session real
+time: it took digging, a wrong turn, or a correction from the user. Drop the
+rest without asking. When no lesson is kept, write nothing and say so in one
+line.
 
 Otherwise, read `~/ghq/github.com/wkentaro/secondbrain/AGENTS.md` and search
 secondbrain for the page each lesson belongs on. Cross-project tool lessons
-usually belong on a page under `references/tools/`. Propose every lesson with
-its target page in one multi-select question. For each lesson the user
-approves, update the existing page in place, or create one per the target
-domain's `AGENTS.md`. Redact credentials and personal data the lesson does
-not need. Commit and push to `main`, and confirm the push succeeded.
+usually belong on a page under `references/tools/`. Write every kept lesson
+without asking: update the existing page in place, or create one per the
+target domain's `AGENTS.md`. Redact credentials and personal data the lesson
+does not need. Commit and push to `main`, confirm the push succeeded, and
+list each lesson with its page in one line.
+
+Ask before acting on a lesson that would create or change a skill, an
+`AGENTS.md`, or a `CLAUDE.md`, since those change what every later session
+does. Propose each with its target in one multi-select question, and write
+what the user approves.
 
 ## 4. Close the pane
 
