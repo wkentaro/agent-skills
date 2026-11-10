@@ -1,0 +1,7 @@
+interface:
+  display_name: "Queue"
+  short_description: "Turn pending questions into decisions with options and evidence"
+  default_prompt: "Use $queue to queue the pending questions as decisions."
+
+policy:
+  allow_implicit_invocation: false
