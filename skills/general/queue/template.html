@@ -201,7 +201,7 @@ const tag = it => verified(it) ? ["ok", "verified"]
   : it.evidence.every(e => e.level === "reported" || e.level === "claimed") ? ["weak", "not re-checked"] : ["", "your call"];
 
 function visual(it, v) {
-  const o = v.option && opts(it).find(o => o.key === v.option);
+  const o = !it.settled && v.option && opts(it).find(o => o.key === v.option);
   const n = o ? opts(it).indexOf(o) + 1 : 0;
   let inner;
   if (v.type === "image") inner = `<img src="${esc(v.src)}" alt="${esc(v.title || "")}">`;
