@@ -187,7 +187,10 @@ const ans = it => state.answers[it.id] || {};
 const decided = it => Boolean(ans(it).choice);
 const noted = it => !decided(it) && Boolean((ans(it).note || "").trim());
 const groupOf = it => it.settled ? "Settled in earlier rounds" : [it.from, it.group].filter(Boolean).join(" · ");
-const rec = it => ((it.options || []).find(o => o.recommended) || {}).key;
+const opts = it => it.options || [];
+const rec = it => (opts(it).find(o => o.recommended) || {}).key;
+// Bulk accept skips notes: a note without a choice is a question for the agent.
+const pending = it => !it.settled && !decided(it) && !noted(it) && rec(it);
 // Verified: the agent ran it or saw it, the action can be undone, there is a recommendation,
 // and the item is not marked as needing the user's own look.
 const verified = it => !it.settled && !it.confirm && rec(it) && it.door === "two-way" && it.evidence.some(e => e.level === "ran" || e.level === "seen");
@@ -196,8 +199,8 @@ const tag = it => verified(it) ? ["ok", "verified"]
   : it.evidence.every(e => e.level === "reported" || e.level === "claimed") ? ["weak", "not re-checked"] : ["", "your call"];
 
 function visual(it, v) {
-  const o = v.option && it.options.find(o => o.key === v.option);
-  const n = o ? it.options.indexOf(o) + 1 : 0;
+  const o = v.option && opts(it).find(o => o.key === v.option);
+  const n = o ? opts(it).indexOf(o) + 1 : 0;
   let inner;
   if (v.type === "image") inner = `<img src="${esc(v.src)}" alt="${esc(v.title || "")}">`;
   else if (v.type === "html") inner = `<iframe sandbox srcdoc="${esc(v.content)}" style="block-size:${+v.height || 320}px" title="${esc(v.title || "")}"></iframe>`;
@@ -234,7 +237,7 @@ function chrome() {
   const d = open.filter(decided).length, n = open.filter(noted).length;
   $("#title").textContent = `${QUEUE.title} · round ${QUEUE.round}`;
   $("#count").textContent = `${d} decided${n ? `, ${n} with a note` : ""}, ${open.length - d - n} open`;
-  const v = ITEMS.filter(x => verified(x) && !decided(x)).length;
+  const v = ITEMS.filter(x => verified(x) && pending(x)).length;
   $("#verified").textContent = `Accept ${v} verified`; $("#verified").hidden = v === 0;
   $("#showOut").textContent = d + n ? `Send ${d + n} of ${open.length}` : "Send answers";
 }
@@ -244,7 +247,7 @@ function render() {
   let last = null;
   const rows = ITEMS.map((x, i) => {
     const g = groupOf(x);
-    const open = ITEMS.filter(y => groupOf(y) === g && !y.settled && !decided(y) && rec(y)).length;
+    const open = ITEMS.filter(y => groupOf(y) === g && pending(y)).length;
     const h = g !== last ? `<div class="group"><span>${esc(g)}</span>${open ? `<button class="link" data-accept="${esc(g)}">Accept ${open > 1 ? "all " + open : "recommended"}</button>` : ""}</div>` : "";
     last = g;
     const [cls, text] = tag(x);
@@ -267,7 +270,7 @@ function render() {
 }
 function choose(id, key) { const a = state.answers[id] ||= {}; a.choice = a.choice === key ? undefined : key; save(); render(); }
 function move(d) { state.sel = Math.max(0, Math.min(ITEMS.length - 1, state.sel + d)); render(); $(".pane").scrollTop = 0; $('[aria-current="true"]').scrollIntoView({ block: "nearest" }); }
-function accept(items) { items.filter(x => !x.settled && !decided(x) && rec(x)).forEach(x => { (state.answers[x.id] ||= {}).choice = rec(x); }); save(); render(); }
+function accept(items) { items.filter(pending).forEach(x => { (state.answers[x.id] ||= {}).choice = rec(x); }); save(); render(); }
 function output() {
   const lines = ITEMS.filter(x => !x.settled && (decided(x) || noted(x))).map(it => {
     const a = ans(it), out = [`${it.id}: ${a.choice || "?"}`];
