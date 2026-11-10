@@ -1,0 +1,26 @@
+name: Queue skill
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/queue.yml"
+      - "skills/general/queue/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/queue.yml"
+      - "skills/general/queue/**"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Builder and page checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run checks
+        run: python3 skills/general/queue/test_queue.py
