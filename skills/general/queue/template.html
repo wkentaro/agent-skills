@@ -187,7 +187,7 @@ const ans = it => state.answers[it.id] || {};
 const decided = it => Boolean(ans(it).choice);
 const noted = it => !decided(it) && Boolean((ans(it).note || "").trim());
 const groupOf = it => it.settled ? "Settled in earlier rounds" : [it.from, it.group].filter(Boolean).join(" · ");
-const rec = it => (it.options.find(o => o.recommended) || {}).key;
+const rec = it => ((it.options || []).find(o => o.recommended) || {}).key;
 // Verified: the agent ran it or saw it, the action can be undone, there is a recommendation,
 // and the item is not marked as needing the user's own look.
 const verified = it => !it.settled && !it.confirm && rec(it) && it.door === "two-way" && it.evidence.some(e => e.level === "ran" || e.level === "seen");
@@ -284,7 +284,7 @@ document.addEventListener("click", e => {
   if (t.dataset.choose) choose(t.closest("[data-item]").dataset.item, t.dataset.choose);
   else if (t.dataset.sel) { state.sel = +t.dataset.sel; state.reading = true; render(); $(".pane").scrollTop = 0; }
   else if ("back" in t.dataset) { state.reading = false; render(); }
-  else if (t.dataset.accept) accept(ITEMS.filter(x => groupOf(x) === t.dataset.accept));
+  else if (t.dataset.accept !== undefined) accept(ITEMS.filter(x => groupOf(x) === t.dataset.accept));
 });
 document.addEventListener("input", e => {
   const f = e.target.dataset.field;
