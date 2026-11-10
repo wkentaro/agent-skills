@@ -173,8 +173,9 @@ const QUEUE = /*__QUEUE__*/null;
 const ITEMS = [...QUEUE.items.filter(x => !x.settled), ...QUEUE.items.filter(x => x.settled)];
 const LEVELS = { ran: "ran it", seen: "saw it", read: "read it", reported: "reported", claimed: "claimed" };
 const KEY = `queue:${QUEUE.queue}:${QUEUE.round}`;
-const state = { sel: Math.max(0, ITEMS.findIndex(x => !x.settled)), reading: false, answers: {} };
-try { state.answers = JSON.parse(localStorage.getItem(KEY)) || {}; } catch {}
+const state = { sel: Math.max(0, ITEMS.findIndex(x => !x.settled)), reading: false, answers: Object.create(null) };
+// Null prototype: an item id such as "constructor" must not hit an inherited property.
+try { Object.assign(state.answers, JSON.parse(localStorage.getItem(KEY))); } catch {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state.answers)); } catch {} };
 
 const $ = s => document.querySelector(s);
