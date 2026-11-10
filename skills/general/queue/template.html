@@ -271,7 +271,7 @@ function render() {
   if (listScroll) $(".list").scrollTop = listScroll;
 }
 function choose(id, key) { const a = state.answers[id] ||= {}; a.choice = a.choice === key ? undefined : key; save(); render(); }
-function move(d) { state.sel = Math.max(0, Math.min(ITEMS.length - 1, state.sel + d)); render(); $(".pane").scrollTop = 0; $('[aria-current="true"]').scrollIntoView({ block: "nearest" }); }
+function move(d) { state.reading = true; state.sel = Math.max(0, Math.min(ITEMS.length - 1, state.sel + d)); render(); $(".pane").scrollTop = 0; $('[aria-current="true"]').scrollIntoView({ block: "nearest" }); }
 function accept(items) { items.filter(pending).forEach(x => { (state.answers[x.id] ||= {}).choice = rec(x); }); save(); render(); }
 function output() {
   const lines = ITEMS.filter(x => !x.settled && (decided(x) || noted(x))).map(it => {
@@ -304,8 +304,8 @@ document.addEventListener("keydown", e => {
   else if (e.key === "k") move(-1);
   else if (it.settled) return;
   else if (e.key === "a" && rec(it)) { if (!decided(it)) choose(it.id, rec(it)); move(1); }
-  else if (e.key === "n") { e.preventDefault(); $("#note").focus(); }
-  else if (/^[1-9]$/.test(e.key) && it.options[e.key - 1]) choose(it.id, it.options[e.key - 1].key);
+  else if (e.key === "n") { e.preventDefault(); state.reading = true; render(); $("#note").focus(); }
+  else if (/^[1-9]$/.test(e.key) && it.options[e.key - 1]) { state.reading = true; choose(it.id, it.options[e.key - 1].key); }
 });
 $("#verified").onclick = () => accept(ITEMS.filter(verified));
 $("#showOut").onclick = () => { $("#outText").value = output(); $("#out").showModal(); };
