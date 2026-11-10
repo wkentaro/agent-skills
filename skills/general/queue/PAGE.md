@@ -29,7 +29,7 @@ settled items. The round is ready to share when it exits without an assertion er
       "summary": ["First paragraph.", "Second paragraph."],
       "visuals": [
         {"type": "diff", "title": "What the PR changes", "content": "-old line\n+new line"},
-        {"type": "image", "title": "Current", "option": "keep", "src": "current.png"}
+        {"type": "image", "title": "Current", "option": "keep-mode", "src": "current.png"}
       ],
       "evidence": [
         {"level": "ran", "text": "`git log -S` on main returned nothing."},
