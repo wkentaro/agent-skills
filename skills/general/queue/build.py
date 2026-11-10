@@ -13,6 +13,7 @@ VISUALS = {"text", "diff", "image", "html"}
 def check(queue: dict) -> None:
     for key in ("queue", "title", "round", "items"):
         assert key in queue, f"queue is missing {key!r}"
+    assert queue["items"], "queue has no items"
     ids = [item["id"] for item in queue["items"]]
     assert len(ids) == len(set(ids)), "item ids must be unique"
     for item in queue["items"]:
@@ -54,7 +55,7 @@ def main() -> None:
     template = (Path(__file__).parent / "template.html").read_text()
     marker = "/*__QUEUE__*/null"
     assert template.count(marker) == 1
-    payload = json.dumps(queue, ensure_ascii=False).replace("</", "<\\/")
+    payload = json.dumps(queue, ensure_ascii=False).replace("<", "\\u003c")
     target.write_text(template.replace(marker, payload))
     open_items = [item for item in queue["items"] if not item.get("settled")]
     print(f"{target}: round {queue['round']}, {len(open_items)} open, {len(queue['items']) - len(open_items)} settled")
