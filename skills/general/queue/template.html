@@ -144,6 +144,7 @@ figure iframe { display: block; inline-size: 100%; border: 0; background: white;
 figcaption { font-size: 12px; color: var(--text-2); display: flex; gap: 8px; align-items: center; }
 figure:not(.pick) { grid-column: 1 / -1; }
 figure.pick { cursor: pointer; }
+figure.pick iframe { pointer-events: none; }
 figure.pick.on .frame { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .settled { color: var(--text-2); }
 code { font: 12px var(--mono); background: var(--raised); padding: 1px 4px; border-radius: 4px; }
@@ -169,7 +170,7 @@ code { font: 12px var(--mono); background: var(--raised); padding: 1px 4px; bord
 
 <script>
 const QUEUE = /*__QUEUE__*/null;
-const ITEMS = QUEUE.items;
+const ITEMS = [...QUEUE.items.filter(x => !x.settled), ...QUEUE.items.filter(x => x.settled)];
 const LEVELS = { ran: "ran it", seen: "saw it", read: "read it", reported: "reported", claimed: "claimed" };
 const KEY = `queue:${QUEUE.queue}:${QUEUE.round}`;
 const state = { sel: Math.max(0, ITEMS.findIndex(x => !x.settled)), reading: false, answers: {} };
