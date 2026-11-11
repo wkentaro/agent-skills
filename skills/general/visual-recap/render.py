@@ -20,7 +20,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-TINTS = {"sand", "sage", "mist", "clay", "stone"}
+TINTS = ("sand", "sage", "mist", "clay", "stone")  # a tuple, so a list or dict tint fails `in`, not hashing
 SVG_ELEMENTS = {"svg", "g", "rect", "circle", "ellipse", "line", "path", "polyline", "polygon", "text", "tspan"}
 SVG_ATTRIBUTES = {
     "viewBox", "aria-hidden", "class", "style", "transform", "pathLength", "d", "points",
@@ -48,6 +48,8 @@ def _bullet(value, where):
 
 
 def _css(value, where):
+    if not isinstance(value, str):
+        raise Invalid(f"{where}: expected text")
     if m := CSS_BANNED.search(value):
         raise Invalid(f"{where}: not allowed in CSS: {m.group(0)!r}")
     return value
@@ -77,18 +79,22 @@ def _svg(value, where):
 
 
 def render(data):
+    if not isinstance(data, dict):
+        raise Invalid("expected a JSON object")
     cards = data.get("cards")
     if not isinstance(cards, list) or not 1 <= len(cards) <= 5:
         raise Invalid("cards: expected 1 to 5 cards")
     parts, css = [], []
     for n, c in enumerate(cards):
         w = f"cards[{n}]"
+        if not isinstance(c, dict):
+            raise Invalid(f"{w}: expected an object")
         if c.get("tint") not in TINTS:
             raise Invalid(f"{w}.tint: one of {sorted(TINTS)}")
         bullets = c.get("bullets")
         if not isinstance(bullets, list) or not 3 <= len(bullets) <= 5:
             raise Invalid(f"{w}.bullets: expected 3 to 5 bullets")
-        if c.get("css"):
+        if c.get("css") is not None:
             css.append(_css(c["css"], f"{w}.css"))
         items = "".join(f"<li>{_bullet(b, f'{w}.bullets')}</li>" for b in bullets)
         parts.append(

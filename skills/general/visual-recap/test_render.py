@@ -16,9 +16,7 @@ assert "<b>6 ms</b>" in page
 literal = render({**example, "title": "{{CARDS}}"})
 assert "<h1>{{CARDS}}" in literal
 
-def rejects(mutate, field):
-    data = copy.deepcopy(example)
-    mutate(data["cards"][0])
+def raises(data, field):
     try:
         render(data)
     except Invalid as e:
@@ -26,9 +24,21 @@ def rejects(mutate, field):
     else:
         raise AssertionError(f"accepted bad {field}")
 
+
+def rejects(mutate, field):
+    data = copy.deepcopy(example)
+    mutate(data["cards"][0])
+    raises(data, field)
+
+
+raises([], "JSON object")
+raises({**example, "cards": [None]}, "cards[0]")
 rejects(lambda c: c.update(svg=c["svg"].replace("</svg>", '<image href="https://x/y.png"/></svg>')), "svg")
 rejects(lambda c: c.update(svg=c["svg"].replace("<svg ", '<svg onload="x()" ', 1)), "svg")
 rejects(lambda c: c.update(tint="purple"), "tint")
+rejects(lambda c: c.update(tint=["sand"]), "tint")
+rejects(lambda c: c.update(css=1), "css")
+rejects(lambda c: c.update(bullets=["one", 2, "three"]), "bullets")
 rejects(lambda c: c.update(bullets=["one", "two"]), "bullets")
 rejects(lambda c: c.update(svg=c["svg"].replace("<svg ", '<svg/onload="x()" ', 1)), "svg")
 rejects(lambda c: c.update(svg=c["svg"] + "<script>x()</script>"), "svg")
