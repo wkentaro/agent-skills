@@ -6,7 +6,8 @@ With `gh` signed in as the user, read the period as a `<start>..<end>` range of 
 gh search prs --author @me --merged-at <start>..<end> --json repository,number,title,url -L 1000
 gh search prs --author @me --created <start>..<end> --json repository,number,title,url,state,closedAt -L 1000
 gh search prs --reviewed-by @me --merged-at <start>..<end> --json repository,number,title,url,author -L 1000
-gh release list -R <owner/repo> -L 1000 --json tagName,publishedAt   # for each repository above
+gh repo list [<owner>] -L 1000 --json nameWithOwner,pushedAt   # you, then each org you work in
+gh release list -R <owner/repo> -L 1000 --json tagName,publishedAt   # each repository above, or pushed since <start>
 ```
 
 Search returns at most 1,000 results: when a search returns that many, split the period in halves and search each. Keep only releases whose `publishedAt` falls inside the period. A PR created in the period is still open at its end unless it closed or merged before `<end>`.
