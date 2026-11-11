@@ -28,7 +28,13 @@ rejects(lambda c: c.update(svg=c["svg"].replace("</svg>", '<image href="https://
 rejects(lambda c: c.update(svg=c["svg"].replace("<svg ", '<svg onload="x()" ', 1)), "svg")
 rejects(lambda c: c.update(tint="purple"), "tint")
 rejects(lambda c: c.update(bullets=["one", "two"]), "bullets")
+rejects(lambda c: c.update(svg=c["svg"].replace("<svg ", '<svg/onload="x()" ', 1)), "svg")
+rejects(lambda c: c.update(svg=c["svg"] + "<script>x()</script>"), "svg")
+rejects(lambda c: c.update(svg=c["svg"].replace("</svg>", "<!--><script>x()</script>--></svg>")), "svg")
+rejects(lambda c: c.update(svg=c["svg"].replace('class="t sheet"', 'style="fill:u\\72l(//x/y.png)"', 1)), "svg")
 rejects(lambda c: c.update(css="@import 'x.css';"), "css")
+rejects(lambda c: c.update(css="@\\69mport '//x/y.css';"), "css")
+rejects(lambda c: c.update(css=".a{background:image-set('//x/y.png' 1x)}"), "css")
 
 data = copy.deepcopy(example)
 data["cards"][0]["headline"] = "<i>x</i> & y"

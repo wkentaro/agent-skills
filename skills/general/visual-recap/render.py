@@ -16,14 +16,20 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 TINTS = {"sand", "sage", "mist", "clay", "stone"}
-SVG_BANNED = re.compile(
-    r"<script|<image|<foreignObject|<style|\son\w+\s*=|href|https?:|url\(", re.I
-)
-CSS_BANNED = re.compile(r"url\(|@import|</style|https?:", re.I)
+SVG_ELEMENTS = {"svg", "g", "rect", "circle", "ellipse", "line", "path", "polyline", "polygon", "text", "tspan"}
+SVG_ATTRIBUTES = {
+    "viewBox", "aria-hidden", "class", "style", "transform", "pathLength", "d", "points",
+    "x", "y", "x1", "y1", "x2", "y2", "cx", "cy", "r", "rx", "ry", "width", "height", "dx", "dy",
+    "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "stroke-dasharray",
+    "opacity", "text-anchor",
+}
+# Escapes and these functions are how CSS reaches the network or runs code.
+CSS_BANNED = re.compile(r"\\|url\(|image-set\(|@import|@font-face|expression\(|</", re.I)
 
 
 class Invalid(ValueError):
@@ -41,13 +47,32 @@ def _bullet(value, where):
     return _text(value, where).replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
 
 
+def _css(value, where):
+    if m := CSS_BANNED.search(value):
+        raise Invalid(f"{where}: not allowed in CSS: {m.group(0)!r}")
+    return value
+
+
 def _svg(value, where):
-    if not isinstance(value, str) or not value.lstrip().startswith('<svg viewBox="0 0 200 200"'):
-        raise Invalid(f'{where}: must start with <svg viewBox="0 0 200 200"')
-    if not value.rstrip().endswith("</svg>"):
-        raise Invalid(f"{where}: must end with </svg>")
-    if m := SVG_BANNED.search(value):
-        raise Invalid(f"{where}: not allowed in a drawing: {m.group(0)!r}")
+    # Parse as XML and allowlist every element and attribute, so nothing that
+    # loads, links or runs can reach the page.
+    # HTML and XML read comments, CDATA and processing instructions differently
+    # (HTML ends a comment at "<!-->"), so a drawing has none of them.
+    if not isinstance(value, str) or "<!" in value or "<?" in value:
+        raise Invalid(f"{where}: expected one <svg> element, no comments, DOCTYPE or CDATA")
+    try:
+        root = ET.fromstring(value.strip())
+    except ET.ParseError as e:
+        raise Invalid(f"{where}: not well-formed SVG: {e}") from None
+    if root.tag != "svg" or root.get("viewBox") != "0 0 200 200":
+        raise Invalid(f'{where}: root must be <svg viewBox="0 0 200 200">')
+    for el in root.iter():
+        if el.tag not in SVG_ELEMENTS:
+            raise Invalid(f"{where}: element not allowed in a drawing: <{el.tag}>")
+        for name, attr in el.attrib.items():
+            if name not in SVG_ATTRIBUTES:
+                raise Invalid(f"{where}: attribute not allowed in a drawing: {name}")
+            _css(attr, f"{where} <{el.tag} {name}>")
     return value.strip()
 
 
@@ -64,9 +89,7 @@ def render(data):
         if not isinstance(bullets, list) or not 3 <= len(bullets) <= 5:
             raise Invalid(f"{w}.bullets: expected 3 to 5 bullets")
         if c.get("css"):
-            if CSS_BANNED.search(c["css"]):
-                raise Invalid(f"{w}.css: no url(), @import or </style>")
-            css.append(c["css"])
+            css.append(_css(c["css"], f"{w}.css"))
         items = "".join(f"<li>{_bullet(b, f'{w}.bullets')}</li>" for b in bullets)
         parts.append(
             f'<article class="card">\n'
