@@ -43,7 +43,7 @@ A comment or session claim is a lead, not a fact. For each count, PR, version an
 
 ## 4. Write the cards
 
-One card per project, 3 or 4 cards, most important first; a fifth narrows every card on a wide screen, so merge or drop the least important instead. Match the card to the period: a day's card is what moved that day; a week's or month's card is the outcome of the whole stretch, such as "v0.7.0 released, 2× faster on CUDA", with the steps behind it left to the bullets.
+One card per project, most important first. Aim for 3 or 4; one or two is fine when that is all the period holds, such as a session recap. A fifth narrows every card on a wide screen, so merge or drop the least important instead. Match the card to the period: a day's card is what moved that day; a week's or month's card is the outcome of the whole stretch, such as "v0.7.0 released, 2× faster on CUDA", with the steps behind it left to the bullets.
 
 ```json
 {"title": "Nov 11 update", "subtitle": "Wednesday · four projects",
