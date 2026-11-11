@@ -17,7 +17,7 @@ body{background:var(--paper);color:var(--ink);font:400 16px/1.5 var(--sans);-web
 header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-bottom:24px;border-bottom:1px solid var(--line)}
 h1{font:400 40px/1.1 var(--serif);letter-spacing:-.01em}
 header span{color:var(--muted);font-size:15px}
-.grid{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:32px;margin-top:40px}
+.grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,calc((1120px - 2*32px)/3));gap:32px;margin-top:40px}
 .art{aspect-ratio:1;border-radius:12px;display:grid;place-items:center}
 .art svg{width:86%;height:86%;overflow:visible}
 .card .k{font-size:13px;color:var(--muted);margin-top:20px}
@@ -31,7 +31,7 @@ header span{color:var(--muted);font-size:15px}
   .page{padding-inline:20px;padding-block:40px 64px}
   h1{font-size:30px}
   header{flex-direction:column;gap:4px}
-  .grid{grid-auto-flow:row;gap:0;margin-top:8px}
+  .grid{grid-auto-flow:row;grid-auto-columns:1fr;gap:0;margin-top:8px}
   .card{display:grid;grid-template-columns:96px 1fr;column-gap:16px;padding-block:20px;border-bottom:1px solid var(--line)}
   .art{grid-row:span 3;border-radius:10px;align-self:start}
   .art svg{width:94%;height:94%}
