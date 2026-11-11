@@ -13,6 +13,8 @@ page = render(example)
 assert page.count('<article class="card">') == 4
 assert "{{" not in page
 assert "<b>6 ms</b>" in page
+literal = render({**example, "title": "{{CARDS}}"})
+assert "<h1>{{CARDS}}" in literal
 
 def rejects(mutate, field):
     data = copy.deepcopy(example)

@@ -99,15 +99,14 @@ def render(data):
             f"  <ul>{items}</ul>\n"
             f"</article>"
         )
-    out = (HERE / "template.html").read_text()
-    for key, value in {
-        "{{TITLE}}": _text(data.get("title"), "title"),
-        "{{SUBTITLE}}": _text(data.get("subtitle"), "subtitle"),
-        "{{CARD_CSS}}": "\n".join(css),
-        "{{CARDS}}": "\n".join(parts),
-    }.items():
-        out = out.replace(key, value)
-    return out
+    fields = {
+        "TITLE": _text(data.get("title"), "title"),
+        "SUBTITLE": _text(data.get("subtitle"), "subtitle"),
+        "CARD_CSS": "\n".join(css),
+        "CARDS": "\n".join(parts),
+    }
+    # One pass, so a value that contains "{{CARDS}}" stays literal text.
+    return re.sub(r"\{\{(\w+)\}\}", lambda m: fields[m.group(1)], (HERE / "template.html").read_text())
 
 
 def _chrome():
