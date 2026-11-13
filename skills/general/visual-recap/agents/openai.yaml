@@ -1,7 +1,0 @@
-interface:
-  display_name: "Visual Recap"
-  short_description: "Turn a day, week or month of work into a one-page visual recap"
-  default_prompt: "Use $visual-recap to make a visual recap of this week's work."
-
-policy:
-  allow_implicit_invocation: false
