@@ -1,7 +1,6 @@
 ---
 name: park
-description: Print and copy a one-line reminder and the command for resuming the current coding-agent session.
-disable-model-invocation: true
+description: Print and copy a one-line reminder and the resume command for this session. Use only when the user names park.
 ---
 
 # Park

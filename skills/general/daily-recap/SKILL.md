@@ -1,7 +1,6 @@
 ---
 name: daily-recap
-description: Reconstruct today's work sessions as a reviewable summary of completed, ongoing, and blocked work.
-disable-model-invocation: true
+description: Reconstruct today's work sessions as a reviewable summary of completed, ongoing, and blocked work. Use only when the user names daily-recap.
 ---
 
 # Daily Recap

@@ -1,7 +1,6 @@
 ---
 name: copy-link
-description: Copy and print the current Claude Code or Codex session's link, preferring Claude's existing Remote Control HTTPS URL.
-disable-model-invocation: true
+description: Copy and print this session's link, preferring Claude's existing Remote Control HTTPS URL. Use only when the user names copy-link.
 ---
 
 Use the branch for the agent hosting this conversation:
