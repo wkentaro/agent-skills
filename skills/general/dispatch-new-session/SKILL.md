@@ -43,7 +43,7 @@ unique agent name from the task.
 Start the selected harness in the tab's root pane:
 
 - Claude: `--allow-dangerously-skip-permissions --model <model>`
-- Codex: `--yolo -m <model>`; use `gpt-5.6-sol` for Sol.
+- Codex: `--yolo -m <model>`; use the current Sol model ID for Sol.
 - Pi: omit `--model` for the Pi default; otherwise pass the exact provider/model identifier
   reported by `pi --list-models`.
 
