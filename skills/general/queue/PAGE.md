@@ -66,13 +66,18 @@ more than a handful of things.
 
 ## Visuals
 
-Make each decision as visual as its subject allows. Use the richest type that fits:
+Every open decision has a visual. Use the richest type that fits:
 
 1. `image`: a screenshot or rendered output. `src` is a path relative to the JSON file.
 2. `html`: a small self-contained mock in `content`, shown in a sandboxed frame.
-   Set `height` in pixels. Inline its CSS and use no scripts or external URLs.
+   Set `height` in pixels. Inline its CSS and use no external URLs. Scripts run only
+   with `"interactive": true`, for a mock the user must click through. An interactive
+   visual takes no `option` key, so the user picks with the option buttons.
 3. `diff`: lines starting with `+` and `-` are coloured.
 4. `text`: a tree, pseudocode or ASCII diagram.
+
+Embed a single-file prototype from the `prototype` skill as an interactive `html`
+visual. Link a prototype that needs a dev server from `links`.
 
 Give a visual an `option` key when it shows what that option produces. The user can then
 click the visual to choose it, and options with visuals sit side by side for comparison.

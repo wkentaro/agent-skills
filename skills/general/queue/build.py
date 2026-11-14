@@ -33,9 +33,13 @@ def check(queue: dict) -> None:
         keys = [option["key"] for option in options]
         assert len(keys) == len(set(keys)), f"{where}: option keys must be unique"
         assert sum(bool(option.get("recommended")) for option in options) <= 1, f"{where}: at most one recommended option"
-        for visual in item.get("visuals") or []:
+        assert item.get("visuals"), f"{where} needs at least one visual"
+        for visual in item["visuals"]:
             assert visual.get("type") in VISUALS, f"{where}: visual type must be one of {sorted(VISUALS)}"
             assert visual.get("option") in (None, *keys), f"{where}: visual option {visual.get('option')!r} is not an option key"
+            if visual.get("interactive"):
+                assert visual["type"] == "html", f"{where}: only html visuals can be interactive"
+                assert not visual.get("option"), f"{where}: an interactive visual takes no option key"
 
 
 def inline_images(queue: dict, base: Path) -> None:

@@ -24,6 +24,7 @@ def item(id, **extra):
             "door": "two-way", "blast": "one"}
     if "settled" not in extra:
         base["options"] = [{"key": "yes", "recommended": True}, {"key": "no"}]
+        base["visuals"] = [{"type": "text", "content": "v"}]
     return {**base, **extra}
 
 
@@ -47,12 +48,26 @@ def test_build_rejects_empty_queue():
         assert result.returncode != 0 and "queue has no items" in result.stderr
 
 
+def test_build_rejects_open_item_without_visual():
+    with TemporaryDirectory() as directory:
+        result, _ = build(directory, [item("bare", visuals=[])])
+        assert result.returncode != 0 and "needs at least one visual" in result.stderr
+
+
+def test_build_rejects_interactive_visual_with_option():
+    with TemporaryDirectory() as directory:
+        result, _ = build(directory, [item("mock", visuals=[
+            {"type": "html", "content": "<button>x</button>", "interactive": True, "option": "yes"}])])
+        assert result.returncode != 0 and "interactive visual takes no option key" in result.stderr
+
+
 def test_page():
     with TemporaryDirectory() as directory:
         result, html = build(directory, [
             item("settled", settled={"choice": "done"}, visuals=[{"type": "text", "content": "v", "option": "yes"}]),
             item("constructor", summary=["<!-- <script> example source"]),
-            item("noted"),
+            item("noted", visuals=[{"type": "html", "content": "<b>static</b>"},
+                                   {"type": "html", "content": "<b>live</b>", "interactive": True}]),
             item("old", settled={"choice": "done"}, options=[{"key": "yes"}, {"key": "no"}],
                  visuals=[{"type": "text", "content": "v", "option": "no"}]),
         ])
@@ -62,6 +77,8 @@ def test_page():
 console.log(JSON.stringify(ITEMS.map(x => x.id)));
 state.sel = ITEMS.findIndex(x => x.id === "old"); render();
 console.log(nodes["#main"].innerHTML.includes("data-choose"));
+state.sel = ITEMS.findIndex(x => x.id === "noted"); render();
+console.log(JSON.stringify(nodes["#main"].innerHTML.match(/sandbox="[^"]*"/g)));
 state.answers.noted = { note: "why?" };
 click({ accept: "" });
 console.log(JSON.stringify(output()));
@@ -69,12 +86,16 @@ console.log(store["queue:t:2"]);
 """).splitlines()
         assert json.loads(out[0]) == ["constructor", "noted", "settled", "old"], "settled items go last"
         assert out[1] == "false", "settled visuals are not choices"
-        assert json.loads(out[2]) == "queue: t  round: 2\nconstructor: yes\nnoted: ?\n  note: why?", \
+        assert json.loads(out[2]) == ['sandbox=""', 'sandbox="allow-scripts"'], \
+            "only interactive visuals run scripts, and never with allow-same-origin"
+        assert json.loads(out[3]) == "queue: t  round: 2\nconstructor: yes\nnoted: ?\n  note: why?", \
             "bulk accept skips note-only items and settled items without options"
-        assert json.loads(out[3])["constructor"] == {"choice": "yes"}, "answers persist for any id"
+        assert json.loads(out[4])["constructor"] == {"choice": "yes"}, "answers persist for any id"
 
 
 if __name__ == "__main__":
     test_build_rejects_empty_queue()
+    test_build_rejects_open_item_without_visual()
+    test_build_rejects_interactive_visual_with_option()
     test_page()
     print("Queue checks passed.")

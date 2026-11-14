@@ -205,7 +205,7 @@ function visual(it, v) {
   const n = o ? opts(it).indexOf(o) + 1 : 0;
   let inner;
   if (v.type === "image") inner = `<img src="${esc(v.src)}" alt="${esc(v.title || "")}">`;
-  else if (v.type === "html") inner = `<iframe sandbox srcdoc="${esc(v.content)}" style="block-size:${+v.height || 320}px" title="${esc(v.title || "")}"></iframe>`;
+  else if (v.type === "html") inner = `<iframe sandbox="${v.interactive ? "allow-scripts" : ""}" srcdoc="${esc(v.content)}" style="block-size:${+v.height || 320}px" title="${esc(v.title || "")}"></iframe>`;
   else if (v.type === "diff") inner = `<pre>${v.content.split("\n").map(l =>
     l.startsWith("+") ? `<span class="add">${esc(l)}</span>` : l.startsWith("-") ? `<span class="del">${esc(l)}</span>` : esc(l)).join("\n")}</pre>`;
   else inner = `<pre>${esc(v.content)}</pre>`;
