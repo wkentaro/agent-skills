@@ -1,12 +1,12 @@
 ---
 name: queue
-description: Queue the assistant's pending questions as decisions with options, a recommendation and evidence on a visual page.
-disable-model-invocation: true
+description: Queue pending questions as decisions with options, a recommendation and evidence on a visual page. Use only when the user names queue.
 ---
 
 # Queue
 
-Turn every unanswered question in the conversation into a **decision**, then put the
+Turn every unanswered question, whether already in the conversation or one you are about
+to ask, into a **decision**, then put the
 decisions to the user on one **page** and work through them in **rounds**.
 
 ## Decision

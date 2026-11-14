@@ -1,7 +1,6 @@
 ---
 name: review-fix
-description: Run configurable review-and-fix rounds on a working change until clean.
-disable-model-invocation: true
+description: Run review-and-fix rounds on a working change until clean. Use only when the user names review-fix.
 ---
 
 # Review fix

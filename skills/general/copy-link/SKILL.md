@@ -1,7 +1,6 @@
 ---
 name: copy-link
-description: Copy and print the current Claude Code or Codex session's link, preferring Claude's existing Remote Control HTTPS URL.
-disable-model-invocation: true
+description: Copy and print this session's link, preferring Claude's existing Remote Control HTTPS URL. Use only when the user names copy-link.
 ---
 
 Use the branch for the agent hosting this conversation:
@@ -10,7 +9,7 @@ Use the branch for the agent hosting this conversation:
   Build `codex://threads/<returned-id>`.
 - **Claude Code:** use the current session ID substituted here:
   `${CLAUDE_SESSION_ID}`. If the placeholder is still literal, check
-  `printenv CLAUDE_SESSION_ID`. Run `python3 scripts/claude_link.py '<id>'`
+  `printenv CLAUDE_CODE_SESSION_ID`. Run `python3 scripts/claude_link.py '<id>'`
   from this skill's directory. It returns the existing Remote Control
   HTTPS URL when the current session log has one, or the desktop deep
   link otherwise. It honors `CLAUDE_CONFIG_DIR`. Read only the returned

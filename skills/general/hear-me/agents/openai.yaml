@@ -1,7 +1,0 @@
-interface:
-  display_name: "Hear Me"
-  short_description: "Check dictated requests until turned off"
-  default_prompt: "Use $hear-me to check this request and keep dictation mode on for this conversation."
-
-policy:
-  allow_implicit_invocation: false

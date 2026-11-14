@@ -3,4 +3,4 @@ interface:
   short_description: "Review changes, apply fixes, and repeat until clean"
 
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

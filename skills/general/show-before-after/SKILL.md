@@ -43,8 +43,9 @@ Feed both sides the same input, data, and seed, so the change is the only differ
 
 ## Output
 
-Write the page to `$TMPDIR/<topic>/before-after.html`, open its `file://` URL in a
-background browser window, and reply with the absolute path. `srcdoc` iframes, iframes
+Write the page to `$TMPDIR/<topic>/before-after.html`. When the host's instructions say
+how to share HTML, share it that way. Otherwise open its `file://` URL in a background
+browser window and reply with the absolute path. `srcdoc` iframes, iframes
 pointed at running servers, and images beside the page all load from `file://`, so skip
 the server. Serve the directory with `python3 -m http.server` only when the page needs
 what browsers block on `file://`: `fetch`, ES module scripts, or local font files.

@@ -4,4 +4,4 @@ interface:
   default_prompt: "Use $copy-link to copy this session's link to my clipboard."
 
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

@@ -1,13 +1,13 @@
 ---
 name: ask-me-again
-description: Re-ask the assistant's pending questions as native interactive choices.
-disable-model-invocation: true
+description: Ask pending or upcoming questions as native interactive choices. Use only when the user names ask-me-again.
 ---
 
 # Ask Me Again
 
-Re-ask every unanswered question from the assistant's preceding message through native
-structured input (`AskUserQuestion` in Claude Code, `request_user_input` in Codex).
+Ask every unanswered question, whether from your preceding message or one you are about
+to ask, through native structured input (`AskUserQuestion` in Claude Code,
+`request_user_input` in Codex).
 
 - Preserve the question order and any existing options or recommendation.
 - For a question without options, offer two or three mutually exclusive choices. Put the

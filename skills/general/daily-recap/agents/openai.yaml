@@ -4,4 +4,4 @@ interface:
   default_prompt: "Use $daily-recap to reconstruct today's work sessions as a reviewable summary."
 
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

@@ -4,4 +4,4 @@ interface:
   default_prompt: "Use $ask-me-again to re-ask the pending questions as interactive choices."
 
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true
