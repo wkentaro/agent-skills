@@ -1,0 +1,26 @@
+name: Show before-after skill
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/show-before-after.yml"
+      - "skills/general/show-before-after/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/show-before-after.yml"
+      - "skills/general/show-before-after/**"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Builder checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run checks
+        run: python3 skills/general/show-before-after/test_build.py
