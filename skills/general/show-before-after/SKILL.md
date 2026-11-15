@@ -19,36 +19,41 @@ Render each side from the most faithful source available, and label it under the
 title ("Current app.css", "localhost:5173 on main", "matplotlib, seed 0", "Screenshot,
 macOS"):
 
-- Both states run as web pages: point each `<iframe>` at its own server.
-- HTML, CSS, or SVG to recreate (web UI, diagram, email, rendered doc): put the real source
-  in an `<iframe srcdoc>`, so the two stylesheets stay isolated.
-- Rendered output (chart, model prediction, native or mobile UI): an image per side,
-  produced by the real code at each revision.
-- Text output (terminal, logs, copy): the real text in a monospace block per side.
+- Both states run as web pages: a `url` pane per side, each at its own server.
+- HTML, CSS, or SVG to recreate (web UI, diagram, email, rendered doc): an `html` pane with
+  the real source, so the two stylesheets stay isolated.
+- Rendered output (chart, model prediction, native or mobile UI): an `image` pane per
+  side, produced by the real code at each revision.
+- Text output (terminal, logs, copy): a `text` pane with the real text per side.
 
 Feed both sides the same input, data, and seed, so the change is the only difference.
 
 ## Page
 
-1. Title, then one or two sentences: what changes and what stays fixed.
-2. One row of controls, only those this comparison needs: annotations toggle, layout (Side
-   by side / Stacked), viewport, scroll together for long frames, and input variants that
-   exercise the change.
-3. Two panes: "Before · <source>" and "After · <one-line summary>".
-4. Numbered notes under each pane. Before notes name the problems; After notes name the
-   fixes. Each note is a bold claim plus one sentence of why, with concrete numbers (px,
-   counts, prices, metrics) where they exist.
-5. A numbered pin on the frame at the element or region each note describes. Hovering a note
-   highlights its pin, and hovering a pin highlights its note.
+Write a spec and build the page from it; the template already carries the layout,
+controls, pins, and hover links. [PAGE.md](PAGE.md) has the spec format.
+
+```sh
+python3 <skill-dir>/build.py spec.json "$TMPDIR/<topic>/before-after.html"
+```
+
+- One variant per input that exercises the change (theme, locale, data set). One variant
+  needs no name.
+- Before notes name the problems; After notes name the fixes. Each note is a claim plus
+  one sentence of why, with concrete numbers (px, counts, prices, metrics) where they
+  exist.
+- Each note's pin comes from the source as text: `agent-browser get box <selector> --json`
+  on the captured page, or the line number for text output. Capture screenshots at device
+  scale 1, so box pixels are image pixels.
 
 ## Output
 
-Write the page to `$TMPDIR/<topic>/before-after.html`. When the host's instructions say
-how to share HTML, share it that way. Otherwise open its `file://` URL in a background
-browser window and reply with the absolute path. `srcdoc` iframes, iframes
-pointed at running servers, and images beside the page all load from `file://`, so skip
-the server. Serve the directory with `python3 -m http.server` only when the page needs
-what browsers block on `file://`: `fetch`, ES module scripts, or local font files.
+When the host's instructions say how to share HTML, share it that way. Otherwise open its
+`file://` URL in a background browser window and reply with the absolute path. `srcdoc`
+panes, `url` panes pointed at running servers, and inlined images all load from
+`file://`, so skip the server.
 
-The page is done when every note has a pin on what it describes and each side matches its
-labelled source.
+The page is done when `build.py` exits clean, every note has a pin on what it describes,
+and each side matches its labelled source. Check the pins by looking at one downscaled
+screenshot of the built page; read captures as text (boxes, DOM, sizes) and open an image
+only where text cannot settle the question.
