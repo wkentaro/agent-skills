@@ -35,6 +35,8 @@ def check(spec: dict) -> None:
             else:
                 field = "content" if pane["type"] == "html" else "src"
                 assert pane.get(field), f"{where} needs {field!r}"
+            if pane["type"] == "url":
+                assert pane["src"].startswith(("http://", "https://", "file://")), f"{where}: src must be an http, https, or file URL"
             assert isinstance(pane.setdefault("notes", []), list), f"{where}: notes must be a list"
             for i, note in enumerate(pane["notes"], 1):
                 assert note.get("claim") and note.get("why"), f"{where} note {i} needs claim and why"

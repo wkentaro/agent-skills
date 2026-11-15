@@ -67,6 +67,7 @@ def test_rejects_bad_specs():
         "needs a one-line summary": spec(after=pane(summary="")),
         "type must be one of": spec(before=pane(type="video")),
         "notes must be a list": spec(before=pane(notes={})),
+        "src must be an http": spec(before=pane(type="url", src="javascript:alert(1)")),
         "needs a name": {"title": "T", "summary": "S", "variants": [{"before": pane(), "after": pane()}] * 2},
     }
     for message, bad in cases.items():

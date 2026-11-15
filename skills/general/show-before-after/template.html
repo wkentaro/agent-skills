@@ -117,6 +117,7 @@ function paneFor(side, pane) {
     section.querySelectorAll(".hot").forEach((el) => el.classList.remove("hot"));
     if (n) section.querySelectorAll(`[data-n="${n}"]`).forEach((el) => el.classList.add("hot"));
   });
+  section.addEventListener("mouseleave", () => section.querySelectorAll(".hot").forEach((el) => el.classList.remove("hot")));
   return section;
 }
 
