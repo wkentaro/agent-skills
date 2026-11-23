@@ -1,16 +1,16 @@
-name: Queue skill
+name: grill-with-html skill
 
 on:
   pull_request:
     paths:
-      - ".github/workflows/queue.yml"
-      - "skills/general/queue/**"
+      - ".github/workflows/grill-with-html.yml"
+      - "skills/general/grill-with-html/**"
   push:
     branches:
       - main
     paths:
-      - ".github/workflows/queue.yml"
-      - "skills/general/queue/**"
+      - ".github/workflows/grill-with-html.yml"
+      - "skills/general/grill-with-html/**"
 
 permissions:
   contents: read
@@ -23,4 +23,4 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run checks
-        run: python3 skills/general/queue/test_queue.py
+        run: python3 skills/general/grill-with-html/test_grill.py
