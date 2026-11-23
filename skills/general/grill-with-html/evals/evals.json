@@ -18,10 +18,10 @@
       "prompt": "Grill this plan. An upload job moves through queued, uploading, done and failed. A failed job retries up to 3 times, the user can cancel at any time, and a cancel during a retry should not leave a half-uploaded file. Write round 1 as the queue JSON file and build it into the HTML page. Then tell me which decisions you held for later rounds.",
       "expected_output": "A round-1 queue JSON and a built page where the state-model questions carry an interactive html demo the user can click through.",
       "expectations": [
-        "At least one decision about the state model has an html visual with interactive set to true where the user can pick each of that decision's options, cancel during a retry, and see the resulting job state and whether a partial file remains",
+        "Every round-1 decision about how the job moves through its states, or about what a cancel or a retry leaves behind, has its own html visual with interactive set to true where the user runs the same steps under each of that decision's options and sees the resulting job state",
         "The interactive visual has no option key",
         "The decisions include what happens when cancel arrives during a retry",
-        "No decision asks the user for a fact the agent could have reasoned out or looked up",
+        "No decision asks the user for a fact the agent could have reasoned out or looked up, including what the plan's own words already say, such as the number of retries",
         "build.py exits without an error when the grader re-runs it on the queue JSON"
       ]
     },
@@ -47,6 +47,26 @@
         "No round-2 queue JSON or page is written",
         "The reply states the settled plan in a few lines and asks the user to confirm it",
         "No workflow, config or other repo file implementing the policy is created"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Continue grilling my upload plan. Round 1 asked storage (\"Where does an upload write while it is in progress?\", options stage-then-commit, write-in-place). It held chunk-size (\"Which chunk size?\", options 5mb, 16mb, 64mb), blocked by storage and by median-file-size, a fact a subagent is measuring from last month's upload logs. The subagent has not reported yet.\n\nMy answers:\n\nqueue: upload  round: 1\nstorage: stage-then-commit",
+      "expected_output": "With chunk-size still waiting on the file-size measurement, the agent builds no page and says it is waiting for that fact.",
+      "expectations": [
+        "No round-2 queue JSON or page is written",
+        "The reply says the agent is waiting for the median file size before asking chunk-size",
+        "The reply does not ask the user to pick a chunk size or to supply the file size"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Continue grilling my upload plan. Round 1 asked storage (\"Where does an upload write while it is in progress?\", options stage-then-commit, write-in-place). It held chunk-size (\"Which chunk size?\", options 5mb, 16mb, 64mb), blocked by storage and by median-file-size, a fact a subagent is measuring from last month's upload logs. The subagent has now reported: the median upload is 180 MB and the 95th percentile is 2.1 GB.\n\nMy answers:\n\nqueue: upload  round: 1\nstorage: stage-then-commit",
+      "expected_output": "The measurement unblocks chunk-size, so the agent builds round 2 asking it, with the measurement as evidence.",
+      "expectations": [
+        "A round-2 queue JSON asks chunk-size, and storage is not asked again",
+        "chunk-size carries the 180 MB median or the 2.1 GB 95th percentile as evidence",
+        "build.py exits without an error when the grader re-runs it on the queue JSON"
       ]
     }
   ]
