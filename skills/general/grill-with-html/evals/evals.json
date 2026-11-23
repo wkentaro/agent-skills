@@ -1,0 +1,41 @@
+{
+  "skill_name": "grill-with-html",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Grill my plan before I build it. I want to add a dark mode to the settings page of a small web app: a toggle in the header, the choice saved per browser, and charts recolored to match. Write round 1 as the queue JSON file and build it into the HTML page. Do not build the feature. Then tell me which decisions you held for later rounds.",
+      "expected_output": "A round-1 queue JSON and a built page whose frontier decisions about appearance each carry one visual per option, with dependent decisions held for later rounds.",
+      "expectations": [
+        "The output lists decisions the plan leaves open or assumes, beyond the three things the plan states",
+        "Round 1 asks at least one decision about how the page or the charts look, and each such decision has one image or html visual per option, each bound to its option with the option key",
+        "At least one decision that depends on another open decision is named as held for a later round, in the queue JSON or the reply, instead of being asked in round 1",
+        "Every open decision in round 1 has two to four options, a recommendation or an explicit taste call, a door and a blast radius",
+        "build.py exits without an error when the grader re-runs it on the queue JSON"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Grill this plan. An upload job moves through queued, uploading, done and failed. A failed job retries up to 3 times, the user can cancel at any time, and a cancel during a retry should not leave a half-uploaded file. Write round 1 as the queue JSON file and build it into the HTML page. Then tell me which decisions you held for later rounds.",
+      "expected_output": "A round-1 queue JSON and a built page where the state-model questions carry an interactive html demo the user can click through.",
+      "expectations": [
+        "At least one decision about the state model has an html visual with interactive set to true whose controls let the user cancel during a retry and see the resulting state",
+        "The interactive visual has no option key",
+        "The decisions include what happens when cancel arrives during a retry",
+        "No decision asks the user for a fact the agent could have reasoned out or looked up",
+        "build.py exits without an error when the grader re-runs it on the queue JSON"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Grill me on a policy for my open-source repo: should stale issues be closed automatically, and if so after how long and with what message? Write round 1 as the queue JSON file and build it into the HTML page. Then tell me which decisions you held for later rounds.",
+      "expected_output": "A round-1 queue JSON and a built page that asks whether to auto-close first, holds the timing and message for after that answer, and shows each option's effect as text.",
+      "expectations": [
+        "The decision on whether to auto-close is asked in round 1",
+        "The timing and the message decisions are named as held for a later round, in the queue JSON or the reply, because they depend on the auto-close decision",
+        "Each round-1 option shows what it would put in place, such as the rule or the message text, as a visual",
+        "The decision whose blast radius covers every open issue has confirm set to true or a one-way door",
+        "build.py exits without an error when the grader re-runs it on the queue JSON"
+      ]
+    }
+  ]
+}

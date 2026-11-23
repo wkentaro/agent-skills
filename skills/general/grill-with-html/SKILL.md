@@ -1,13 +1,25 @@
 ---
 name: grill-with-html
-description: Queue pending questions as decisions with options, a recommendation and evidence on a visual page. Use only when the user names grill-with-html.
+description: Grill a plan or a set of pending questions into a design tree and ask it in rounds on a visual page, each decision with options, a recommendation, evidence and a picture of what each option produces. Use only when the user names grill-with-html.
 ---
 
 # Grill with HTML
 
-Turn every unanswered question, whether already in the conversation or one you are about
-to ask, into a **decision**, then put the
-decisions to the user on one **page** and work through them in **rounds**.
+Take a plan, an idea, or the unanswered questions already in the conversation, and map
+it as a **design tree**: every decision branches into the decisions that hang off it.
+Put the tree to the user on one **page** per **round**, and grill until the tree has no
+open branch.
+
+## Design tree
+
+Walk the plan and write down every choice it makes or leaves open, including the ones it
+silently assumes. Each choice is a **decision**. A decision that only makes sense once
+another is settled is **blocked by** it.
+
+The **frontier** is every open decision whose blockers are all settled. Ask the whole
+frontier each round. A decision blocked by an open one waits for a later round.
+
+Order the frontier with the decisions an agent is blocked on first, then by group.
 
 ## Decision
 
@@ -24,23 +36,26 @@ A decision is a question the user can settle in one read. Each carries:
   - `claimed`: a person's statement, such as an issue thread or a PR description.
 - **Options**: two to four mutually exclusive choices, each with its consequence in one
   sentence. Mark the one you recommend. Leave all unmarked only when the choice is taste.
-- **Visual**: what each option produces, so the user answers by picking a picture rather
-  than by reading. When options differ in what the user would see or experience, give
-  each its own visual. A pure policy call with nothing to show still gets one plain-text
-  visual. When a static visual cannot settle the choice, such as how an interaction
-  feels or how a state model handles a tricky sequence, build it with the `prototype`
-  skill.
+- **Visual**: a picture of what each option produces, so the user answers by picking a
+  picture rather than by reading. Choose it by what the question is about:
+
+  | The question is about | Show |
+  | --- | --- |
+  | how something looks | one mock or screenshot per option, bound to that option |
+  | how something behaves over a sequence of steps | a demo built with the `prototype` skill's LOGIC branch, as one interactive visual the user drives before picking an option |
+  | what depends on what | a drawing of the dependency in inline SVG |
+  | how big or how often | a chart, following the `dataviz` skill when it is installed |
+  | how parts connect, such as a data flow or a layout | a drawing in inline SVG |
+  | a policy with nothing to show | the text each option would put in place, one plain-text visual per option |
+
 - **Danger**: the door (`two-way` when the choice can be undone, `one-way` when it cannot)
   and the blast radius in a few words.
 - **Draft**: the exact text that will be posted or sent if the user accepts, when there is one.
 
 Facts are your job. Look up, run, or dispatch a subagent for anything the environment can
-answer, and bring the result as evidence. Only what the user must judge becomes a decision.
-
-Ask the frontier: the decisions whose prerequisites are already settled. A decision that
-depends on an open one waits for a later round.
-
-Order decisions with the ones an agent is blocked on first, then by group.
+answer, and bring the result as evidence. Only what the user must judge becomes a
+decision. A fact a subagent is still finding is an open blocker: ask the rest of the
+frontier now.
 
 ## Page
 
@@ -51,12 +66,16 @@ file, the visuals, the build command and how answers come back.
 
 The user may answer only some decisions. After each set of answers:
 
-1. Act on every decision that has a choice. A choice the user made approves that
-   decision's draft and action, including an edited draft.
+1. Carry out every choice that is an action of its own, such as posting a draft or
+   closing an issue. The choice approves that action and its draft, including an edited
+   draft. Building the plan itself waits for the end.
 2. Reply to every note that came without a choice. It is a question or a steer: answer
    it with new evidence, or reshape the decision and its options.
-3. Recompute the frontier and ask the next round: the decisions still open, the ones
+3. Update the tree. A choice can settle, add, or remove the branches below it.
+4. Recompute the frontier and ask the next round: the decisions still open, the ones
    reshaped by a note, and the ones the answers unblocked.
 
-The work is done when every decision is settled or the user says to stop. When no
-unanswered question exists at the start, say so and stop.
+The grilling is done when every decision is settled or the user says to stop. A decision
+waiting for a later round or for a fact is not settled. Then state the settled plan in a
+few lines and wait for the user to confirm it before you build on it.
+When the input has no open decision at the start, say so and stop.
