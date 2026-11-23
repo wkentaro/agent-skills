@@ -44,7 +44,7 @@
       "expected_output": "The held decisions drop out because nothing will be auto-closed, nothing is left open, so the agent states the settled plan and waits for confirmation instead of asking a round 2 or building anything.",
       "expectations": [
         "include-prs, stale-timing and close-message are removed as moot rather than asked in a round 2",
-        "No round-2 queue JSON or page is written",
+        "No round-2 HTML page is built",
         "The reply states the settled plan in a few lines and asks the user to confirm it",
         "No workflow, config or other repo file implementing the policy is created"
       ]
@@ -54,7 +54,7 @@
       "prompt": "Continue grilling my upload plan. Round 1 asked storage (\"Where does an upload write while it is in progress?\", options stage-then-commit, write-in-place). It held chunk-size (\"Which chunk size?\", options 5mb, 16mb, 64mb), blocked by storage and by median-file-size, a fact a subagent is measuring from last month's upload logs. The subagent has not reported yet.\n\nMy answers:\n\nqueue: upload  round: 1\nstorage: stage-then-commit",
       "expected_output": "With chunk-size still waiting on the file-size measurement, the agent builds no page and says it is waiting for that fact.",
       "expectations": [
-        "No round-2 queue JSON or page is written",
+        "No round-2 HTML page is built",
         "The reply says the agent is waiting for the median file size before asking chunk-size",
         "The reply does not ask the user to pick a chunk size or to supply the file size"
       ]
