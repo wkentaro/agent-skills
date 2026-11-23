@@ -42,7 +42,7 @@ A decision is a question the user can settle in one read. Each carries:
   | The question is about | Show |
   | --- | --- |
   | how something looks | one mock or screenshot per option, bound to that option |
-  | how something behaves over a sequence of steps | a demo built with the `prototype` skill's LOGIC branch, as one interactive visual the user drives before picking an option |
+  | how something behaves over a sequence of steps | a demo built with the `prototype` skill's LOGIC branch, as one interactive visual where the user runs the same steps under each option |
   | what depends on what | a drawing of the dependency in inline SVG |
   | how big or how often | a chart, following the `dataviz` skill when it is installed |
   | how parts connect, such as a data flow or a layout | a drawing in inline SVG |
@@ -55,7 +55,7 @@ A decision is a question the user can settle in one read. Each carries:
 Facts are your job. Look up, run, or dispatch a subagent for anything the environment can
 answer, and bring the result as evidence. Only what the user must judge becomes a
 decision. A fact a subagent is still finding is an open blocker: ask the rest of the
-frontier now.
+frontier now. When nothing else is open, wait for the fact, then recompute the frontier.
 
 ## Page
 

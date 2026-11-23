@@ -18,7 +18,7 @@
       "prompt": "Grill this plan. An upload job moves through queued, uploading, done and failed. A failed job retries up to 3 times, the user can cancel at any time, and a cancel during a retry should not leave a half-uploaded file. Write round 1 as the queue JSON file and build it into the HTML page. Then tell me which decisions you held for later rounds.",
       "expected_output": "A round-1 queue JSON and a built page where the state-model questions carry an interactive html demo the user can click through.",
       "expectations": [
-        "At least one decision about the state model has an html visual with interactive set to true whose controls let the user cancel during a retry and see the resulting state",
+        "At least one decision about the state model has an html visual with interactive set to true where the user can pick each of that decision's options, cancel during a retry, and see the resulting job state and whether a partial file remains",
         "The interactive visual has no option key",
         "The decisions include what happens when cancel arrives during a retry",
         "No decision asks the user for a fact the agent could have reasoned out or looked up",
@@ -32,9 +32,21 @@
       "expectations": [
         "The decision on whether to auto-close is asked in round 1",
         "The timing and the message decisions are named as held for a later round, in the queue JSON or the reply, because they depend on the auto-close decision",
+        "No round-1 decision depends on how another round-1 decision is answered; for example, whether pull requests get the same treatment is held until the auto-close decision is settled",
         "Each round-1 option shows what it would put in place, such as the rule or the message text, as a visual",
         "The decision whose blast radius covers every open issue has confirm set to true or a one-way door",
         "build.py exits without an error when the grader re-runs it on the queue JSON"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Continue grilling my repo's stale-issue policy. Round 1 asked close-scope (\"Which issues may a bot close for inactivity?\", options no-auto-close, waiting-on-reporter, all-inactive) and add-template (\"Add an issue template that asks for repro steps?\", options add-template, skip). It held include-prs (\"Should the same policy close pull requests?\"), stale-timing (\"How many quiet days before closing?\") and close-message (\"What does the close comment say?\"), each blocked by close-scope. My answers:\n\nqueue: stale-policy  round: 1\nclose-scope: no-auto-close\nadd-template: skip",
+      "expected_output": "The held decisions drop out because nothing will be auto-closed, nothing is left open, so the agent states the settled plan and waits for confirmation instead of asking a round 2 or building anything.",
+      "expectations": [
+        "include-prs, stale-timing and close-message are removed as moot rather than asked in a round 2",
+        "No round-2 queue JSON or page is written",
+        "The reply states the settled plan in a few lines and asks the user to confirm it",
+        "No workflow, config or other repo file implementing the policy is created"
       ]
     }
   ]
