@@ -68,6 +68,7 @@ and settled items. The round is ready to share when it exits without an assertio
 - `"fact": true` marks a fact an agent is still finding, with only `id` and `title`. It is
   never asked; a decision that needs it lists its id in `blockedBy` and is held. Drop the
   fact and its `blockedBy` entries once it returns.
+  `build.py` rejects a round with no open decision, since then there is nothing to ask.
 
 The page tags an item **verified** when it has `ran` or `seen` evidence, a two-way door
 and a recommendation. The user can accept every verified item in one click, so tag

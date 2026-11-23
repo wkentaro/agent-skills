@@ -84,6 +84,7 @@ def test_build_rejects_malformed_fields():
         ({}, [item("a"), item("b", blockedBy="a")], "blockedBy is a list of ids"),
         ({}, [item("a", settled={})], "settled needs the choice"),
         ({}, [item("a", fact="true")], "fact is true or false"),
+        ({}, [{"id": "n", "title": "N", "fact": True}, {"id": "b", "title": "B", "blockedBy": ["n"]}], "no decision is open this round"),
         ({}, [item("a", fact=True, settled={"choice": "yes"})], "a fact is never settled"),
         ({}, [item("a", visuals=[{"type": "html", "content": "x", "interactive": []}])], "interactive is true or false"),
         ({}, [item("a", visuals=[{"type": "html", "content": "x", "interactive": 1}])], "interactive is true or false"),

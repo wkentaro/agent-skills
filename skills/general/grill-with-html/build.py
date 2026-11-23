@@ -27,6 +27,7 @@ def check(queue: dict) -> dict:
         if "settled" in item:
             assert isinstance(item["settled"], dict) and item["settled"].get("choice"), f"{where}: settled needs the choice"
     check_acyclic(items)
+    assert any(not item.get("settled") and not waits(item, items) for item in queue["items"]), "no decision is open this round: wait for the pending facts instead of building a page"
     for item in queue["items"]:
         where = f"item {item['id']!r}"
         if waits(item, items):
