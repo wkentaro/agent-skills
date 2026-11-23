@@ -1,7 +1,7 @@
 interface:
-  display_name: "Queue"
+  display_name: "Grill with HTML"
   short_description: "Turn pending questions into decisions with options and evidence"
-  default_prompt: "Use $queue to queue the pending questions as decisions."
+  default_prompt: "Use $grill-with-html to put the pending questions as decisions."
 
 policy:
   allow_implicit_invocation: true

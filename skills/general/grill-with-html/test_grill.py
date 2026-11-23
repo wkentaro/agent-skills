@@ -98,4 +98,4 @@ if __name__ == "__main__":
     test_build_rejects_open_item_without_visual()
     test_build_rejects_interactive_visual_with_option()
     test_page()
-    print("Queue checks passed.")
+    print("grill-with-html checks passed.")

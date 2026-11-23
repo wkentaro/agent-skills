@@ -1,9 +1,9 @@
 ---
-name: queue
-description: Queue pending questions as decisions with options, a recommendation and evidence on a visual page. Use only when the user names queue.
+name: grill-with-html
+description: Queue pending questions as decisions with options, a recommendation and evidence on a visual page. Use only when the user names grill-with-html.
 ---
 
-# Queue
+# Grill with HTML
 
 Turn every unanswered question, whether already in the conversation or one you are about
 to ask, into a **decision**, then put the
