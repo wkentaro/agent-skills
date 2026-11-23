@@ -62,7 +62,7 @@ code { overflow-wrap: anywhere; font: 0.9em var(--mono); padding: 1px 4px; borde
 .segs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; border-radius: 3px; }
 .meter { flex: 1; block-size: 4px; border-radius: 2px; background: var(--line-2); overflow: clip; }
 .segs + .meter { display: none; }
-@media (width < 26rem) { .segs { display: none; } .segs + .meter { display: block; } }
+@media (width < 26rem) { .segs { display: none; } .segs + .meter { display: block; } .wide { display: none; } }
 .meter i { display: block; block-size: 100%; background: var(--accent); inline-size: 0; }
 .progress .n { font-size: var(--fs-xs); color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .bar .actions { margin-inline-start: auto; display: flex; gap: 8px; flex: none; }
@@ -74,7 +74,6 @@ code { overflow-wrap: anywhere; font: 0.9em var(--mono); padding: 1px 4px; borde
 .tree-scroll { overflow-x: auto; overscroll-behavior-x: contain; padding: 2px; margin: -2px; scrollbar-width: thin; }
 .cols { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(12.5rem, 1fr); gap: 40px; align-items: start; }
 .col { display: flex; flex-direction: column; gap: 8px; }
-.col h3 { font-size: var(--fs-xs); font-weight: 400; color: var(--text-3); padding-block-end: 2px; }
 .node { all: unset; position: relative; z-index: 1; display: grid; gap: 2px; padding: 8px 12px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--surface); font-size: var(--fs-xs); line-height: 1.4; }
 .node .nt { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: clip; }
 .node .nk { font: 11px/1.4 var(--mono); color: var(--text-3); white-space: nowrap; overflow: clip; text-overflow: ellipsis; }
@@ -192,7 +191,6 @@ dialog textarea { font: var(--fs-xs)/1.65 var(--mono); min-block-size: 10lh; bac
   .bar { gap: 12px; padding-inline: 16px; }
   .bar h1 { display: none; }
   .progress { max-inline-size: none; }
-  .bar .accept-all { display: none; }
   .page { padding: 20px 16px 72px; gap: 48px; }
   .group { gap: 44px; }
   .group-head { margin-block-end: -24px; }
@@ -209,7 +207,7 @@ dialog textarea { font: var(--fs-xs)/1.65 var(--mono); min-block-size: 10lh; bac
 <header class="bar">
   <h1 id="title"></h1>
   <div class="progress" id="progress"></div>
-  <div class="actions"><button class="btn accept-all" id="acceptAll" hidden></button><button class="btn primary" id="send"></button></div>
+  <div class="actions"><button class="btn" id="acceptAll" hidden></button><button class="btn primary" id="send"></button></div>
 </header>
 <main class="page" id="page"></main>
 <dialog id="out" aria-labelledby="outTitle">
@@ -227,7 +225,7 @@ const md = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^
 const LEVELS = { ran: "ran it", seen: "saw it", read: "read it", reported: "reported", claimed: "claimed" };
 const byId = Object.fromEntries(QUEUE.items.map(it => [it.id, it]));
 const openBlockers = it => (it.blockedBy || []).filter(b => !byId[b].settled);
-const waits = it => !it.settled && openBlockers(it).length > 0;
+const waits = it => it.fact === true || (!it.settled && openBlockers(it).length > 0);
 const OPEN = QUEUE.items.filter(it => !it.settled && !waits(it));
 const HELD = QUEUE.items.filter(waits);
 const SETTLED = QUEUE.items.filter(it => it.settled);
@@ -297,13 +295,11 @@ function treeHTML() {
   if (!QUEUE.items.some(it => it.blockedBy?.length)) return "";
   const cols = [];
   QUEUE.items.forEach(it => (cols[depthOf(it.id)] ||= []).push(it));
-  const next = it => waits(it) && !openBlockers(it).some(b => waits(byId[b]));
-  const name = c => c.every(i => i.settled) ? "Settled" : c.some(i => OPEN.includes(i)) ? (c.some(i => i.settled) ? "Settled and open" : "This round") : c.some(next) ? "Next rounds" : "After that";
   const node = it => {
     const cls = it.settled ? "settled" : waits(it) ? "waits" : "open";
-    return `<button class="node ${cls}" data-node="${esc(it.id)}" ${cls === "open" ? "" : 'tabindex="-1"'} title="${esc(it.title)}"><span class="nk">${esc(it.settled ? it.settled.choice : cls)}</span><span class="nt">${esc(it.title)}</span></button>`;
+    return `<button class="node ${cls}" data-node="${esc(it.id)}" ${cls === "open" ? "" : 'tabindex="-1"'} title="${esc(it.title)}"><span class="nk">${esc(it.settled ? it.settled.choice : it.fact === true ? "finding" : cls)}</span><span class="nt">${esc(it.title)}</span></button>`;
   };
-  return `<section class="tree" aria-label="Design tree"><h2>Design tree</h2><div class="tree-scroll"><div class="cols">${cols.map(c => `<div class="col"><h3>${name(c)}</h3>${c.map(node).join("")}</div>`).join("")}<svg class="edges" aria-hidden="true"></svg></div></div></section>`;
+  return `<section class="tree" aria-label="Design tree"><h2>Design tree</h2><div class="tree-scroll"><div class="cols">${cols.map(c => `<div class="col">${c.map(node).join("")}</div>`).join("")}<svg class="edges" aria-hidden="true"></svg></div></div></section>`;
 }
 function drawEdges() {
   const svg = $(".edges"); if (!svg) return;
@@ -323,7 +319,7 @@ function render() {
   OPEN.forEach(it => { const g = groupOf(it); const last = groups.at(-1); last && last.name === g ? last.items.push(it) : groups.push({ name: g, items: [it] }); });
   $("#page").innerHTML = (OPEN.length ? "" : `<p>Nothing is open in this round.</p>`) + treeHTML()
     + groups.map(g => `<section class="group">${g.name ? `<div class="group-head"><h2>${esc(g.name)}</h2>${OPEN.filter(it => groupOf(it) === g.name).length > 1 ? `<button class="link" data-accept="${esc(g.name)}" hidden></button>` : ""}</div>` : ""}${g.items.map(decisionHTML).join("")}</section>`).join("")
-    + (HELD.length ? `<section class="tail"><h2>Next rounds</h2><ul>${HELD.map(it => `<li><span class="k">waits on ${openBlockers(it).map(esc).join(", ")}</span><span>${esc(it.title)}</span></li>`).join("")}</ul></section>` : "")
+    + (HELD.length ? `<section class="tail"><h2>Next rounds</h2><ul>${HELD.map(it => `<li><span class="k">${it.fact === true ? "an agent is finding this" : `waits on ${openBlockers(it).map(esc).join(", ")}`}</span><span>${esc(it.title)}</span></li>`).join("")}</ul></section>` : "")
     + (SETTLED.length ? `<section class="tail"><details class="fold"><summary>Settled <span class="hint">${SETTLED.length}</span></summary><div class="body"><ul>${SETTLED.map(it => `<li><span class="k">${esc(it.settled.choice)}</span><span>${esc(it.title)}${it.settled.note ? ` · ${md(it.settled.note)}` : ""}</span></li>`).join("")}</ul></div></details></section>` : "");
   const segs = OPEN.length <= 8;
   $("#progress").innerHTML = OPEN.length ? `${segs ? `<div class="segs" style="--n:${OPEN.length}">${OPEN.map(it => `<button data-jump="${esc(it.id)}" aria-label="${esc(it.title)}"></button>`).join("")}</div>` : ""}<div class="meter" role="progressbar" aria-label="Answered" aria-valuemin="0" aria-valuemax="${OPEN.length}"><i></i></div><span class="n" aria-live="polite"></span>` : "";
@@ -345,7 +341,7 @@ function update() {
   const count = $(".progress .n"); if (count) count.textContent = `${d + n} of ${OPEN.length}`;
   $$(".node.open").forEach(el => { const it = byId[el.dataset.node]; el.classList.toggle("done", decided(it)); el.classList.toggle("noted", noted(it)); $(".nk", el).textContent = decided(it) ? ans(it).choice : noted(it) ? "note" : "open"; });
   const v = OPEN.filter(it => verified(it) && pending(it)).length;
-  $("#acceptAll").hidden = !v; $("#acceptAll").textContent = `Accept ${v} verified`;
+  $("#acceptAll").hidden = !v; $("#acceptAll").innerHTML = `Accept ${v}<span class="wide"> verified</span>`;
   $$("[data-accept]").forEach(b => { const k = OPEN.filter(it => groupOf(it) === b.dataset.accept && batchable(it)).length; b.hidden = !k; b.textContent = `Accept ${k} recommended`; });
   $("#send").textContent = d + n ? `Send ${d + n}` : "Send";
 }

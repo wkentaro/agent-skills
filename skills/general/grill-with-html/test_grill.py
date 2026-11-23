@@ -83,7 +83,10 @@ def test_build_rejects_malformed_fields():
         ({"round": "<em>2</em>"}, [item("a")], "round is an integer"),
         ({}, [item("a"), item("b", blockedBy="a")], "blockedBy is a list of ids"),
         ({}, [item("a", settled={})], "settled needs the choice"),
+        ({}, [item("a", fact="true")], "fact is true or false"),
+        ({}, [item("a", fact=True, settled={"choice": "yes"})], "a fact is never settled"),
         ({}, [item("a", visuals=[{"type": "html", "content": "x", "interactive": []}])], "interactive is true or false"),
+        ({}, [item("a", visuals=[{"type": "html", "content": "x", "interactive": 1}])], "interactive is true or false"),
         ({}, [item("a", visuals=[{"type": "diff"}])], "a diff visual needs its content"),
         ({}, [item("a", visuals=[{"type": "text", "content": "x", "option": "yes"},
                                  {"type": "text", "content": "y", "option": "yes"}])], "at most one visual per option"),
@@ -105,6 +108,8 @@ def test_page():
             item("noted", blockedBy=["settled"], visuals=[{"type": "html", "content": "<b>static</b>"},
                                                          {"type": "html", "content": "<b>live</b>", "interactive": True}]),
             {"id": "later", "title": "Later", "blockedBy": ["noted"]},
+            {"id": "count", "title": "Count", "fact": True},
+            {"id": "sized", "title": "Sized", "blockedBy": ["count"]},
         ])
         assert result.returncode == 0, result.stderr
         assert "<!--" not in html.read_text().split("const QUEUE = ")[1].split(";\n")[0]
@@ -112,7 +117,7 @@ def test_page():
 console.log(JSON.stringify([OPEN, HELD, SETTLED].map(xs => xs.map(x => x.id))));
 const page = nodes["#page"].innerHTML;
 console.log(JSON.stringify(page.match(/sandbox="[^"]*"/g)));
-console.log(page.includes("Design tree") && page.includes("waits on noted"));
+console.log(page.includes("Design tree") && page.includes("waits on noted") && page.includes("waits on count") && !page.includes("This round"));
 const batch = OPEN.filter(batchable).map(x => x.id);
 answers.noted = { note: "why?" };
 accept(OPEN.filter(verified));
@@ -122,7 +127,7 @@ console.log(JSON.stringify([...page.matchAll(/data-node="([^"]+)"/g)].map(m => m
 console.log(JSON.stringify(batch));
 console.log(JSON.stringify([...page.matchAll(/ id="(o-[^"]+)"/g)].map(m => m[1])));
 """).splitlines()
-        assert json.loads(out[0]) == [["constructor", "policy", "noted"], ["later"], ["settled"]], \
+        assert json.loads(out[0]) == [["constructor", "policy", "noted"], ["later", "count", "sized"], ["settled"]], \
             "an item blocked by an open item is held, and one blocked by a settled item is open"
         assert json.loads(out[1]) == ['sandbox="allow-same-origin"', 'sandbox="allow-scripts"'], \
             "only interactive visuals run scripts, and never with allow-same-origin"
@@ -130,7 +135,7 @@ console.log(JSON.stringify([...page.matchAll(/ id="(o-[^"]+)"/g)].map(m => m[1])
         assert json.loads(out[3]) == "queue: t  round: 2\nconstructor: yes\nnoted: ?\n  note: why?", \
             "bulk accept skips note-only items"
         assert json.loads(out[4])["constructor"] == {"choice": "yes"}, "answers persist"
-        assert sorted(json.loads(out[5])) == ["constructor", "later", "noted", "policy", "settled"], \
+        assert sorted(json.loads(out[5])) == ["constructor", "count", "later", "noted", "policy", "settled", "sized"], \
             "an id that is an Object.prototype key still gets a tree node"
         radio_ids = json.loads(out[7])
         assert len(radio_ids) == len(set(radio_ids)) == 6, "radio ids are unique across items"

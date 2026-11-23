@@ -22,6 +22,8 @@ def check(queue: dict) -> dict:
         assert isinstance(item.get("blockedBy", []), list), f"{where}: blockedBy is a list of ids"
         for blocker in item.get("blockedBy") or []:
             assert blocker in items, f"{where} is blocked by unknown id {blocker!r}"
+        assert type(item.get("fact", False)) is bool, f"{where}: fact is true or false"
+        assert not (item.get("fact") and item.get("settled")), f"{where}: a fact is never settled"
         if "settled" in item:
             assert isinstance(item["settled"], dict) and item["settled"].get("choice"), f"{where}: settled needs the choice"
     check_acyclic(items)
@@ -51,7 +53,7 @@ def check(queue: dict) -> dict:
             assert visual.get("type") in VISUALS, f"{where}: visual type must be one of {sorted(VISUALS)}"
             assert visual.get("src" if visual["type"] == "image" else "content"), f"{where}: a {visual['type']} visual needs its {'src' if visual['type'] == 'image' else 'content'}"
             assert visual.get("option") in (None, *keys), f"{where}: visual option {visual.get('option')!r} is not an option key"
-            assert visual.get("interactive", False) in (True, False), f"{where}: interactive is true or false"
+            assert type(visual.get("interactive", False)) is bool, f"{where}: interactive is true or false"
             if visual.get("interactive"):
                 assert visual["type"] == "html", f"{where}: only html visuals can be interactive"
                 assert not visual.get("option"), f"{where}: an interactive visual takes no option key"
@@ -59,7 +61,7 @@ def check(queue: dict) -> dict:
 
 
 def waits(item: dict, items: dict) -> bool:
-    return not item.get("settled") and any(not items[b].get("settled") for b in item.get("blockedBy") or [])
+    return item.get("fact") is True or not item.get("settled") and any(not items[b].get("settled") for b in item.get("blockedBy") or [])
 
 
 def check_acyclic(items: dict) -> None:
