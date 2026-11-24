@@ -61,14 +61,17 @@ file, the visuals, the build command and how answers come back.
 
 The user may answer only some decisions. After each set of answers:
 
-1. Act on every decision that has a choice. A choice the user made approves that
+1. Run the assumption audit on the answers before acting: the choices, every edited
+   draft and every note. A choice or draft that leaves a silent choice, such as a
+   placeholder or a detail the user never picked, becomes a decision, and the action
+   waits for it.
+2. Act on every other decision that has a choice. A choice the user made approves that
    decision's draft and action, including an edited draft. Hold an action that depends
    on a decision still open until that decision is settled.
-2. Reply to every note that came without a choice. It is a question or a steer: answer
+3. Reply to every note that came without a choice. It is a question or a steer: answer
    it with new evidence, or reshape the decision and its options.
-3. Run the assumption audit again, recompute the frontier, and ask the next round: the
-   decisions still open, the ones reshaped by a note, the ones the answers unblocked, and
-   the assumptions the answers exposed.
+4. Recompute the frontier and ask the next round: the decisions still open, the ones
+   reshaped by a note, the ones the answers unblocked, and the ones the audit found.
 
 The work is done when every decision is settled or the user says to stop. When neither
 an unanswered question nor an assumption from the audit exists at the start, say so and
