@@ -29,7 +29,8 @@ settled items. The round is ready to share when it exits without an assertion er
       "summary": ["First paragraph.", "Second paragraph."],
       "visuals": [
         {"type": "diff", "title": "What the PR changes", "content": "-old line\n+new line"},
-        {"type": "image", "title": "Current", "option": "keep-mode", "src": "current.png"}
+        {"type": "image", "title": "Shared config stays group-readable", "option": "keep-mode", "src": "keep-mode.png"},
+        {"type": "image", "title": "Config becomes owner-only", "option": "always-private", "src": "always-private.png"}
       ],
       "evidence": [
         {"level": "ran", "text": "`git log -S` on main returned nothing."},
@@ -66,8 +67,8 @@ more than a handful of things.
 
 ## Visuals
 
-Every open decision has at least one `image` or `html` visual. `diff` and `text` only add
-to one. Use the richest type that fits:
+Every open decision has at least one static `image` or `html` visual. `diff`, `text` and
+an interactive walkthrough only add to one. Use the richest type that fits:
 
 1. `image`: a screenshot or rendered output. `src` is a path relative to the JSON file.
 2. `html`: a small self-contained mock in `content`, shown in a sandboxed frame.
@@ -78,8 +79,8 @@ to one. Use the richest type that fits:
 4. `text`: a tree, pseudocode or ASCII diagram.
 
 Embed a single-file prototype from the `prototype` skill as an interactive `html`
-visual, next to one static visual per option. Link a prototype that needs a dev server
-from `links`.
+visual, or link one that needs a dev server from `links`. Either way, keep one static
+visual per option beside it, since a walkthrough cannot be picked.
 
 Give a visual an `option` key when it shows what that option produces. The user can then
 click the visual to choose it, and options with visuals sit side by side for comparison.

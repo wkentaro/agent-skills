@@ -54,16 +54,20 @@ def test_build_rejects_open_item_without_visual():
         assert result.returncode != 0 and "needs at least one visual" in result.stderr
 
 
-def test_build_rejects_open_item_with_only_text_visuals():
+def test_build_rejects_open_item_without_a_static_picture():
     with TemporaryDirectory() as directory:
         result, _ = build(directory, [item("words", visuals=[
-            {"type": "text", "content": "v"}, {"type": "diff", "content": "+v"}])])
-        assert result.returncode != 0 and "needs an html or image visual" in result.stderr
+            {"type": "text", "content": "v"}, {"type": "diff", "content": "+v"},
+            {"type": "html", "content": "<button>Run</button>", "interactive": True}])])
+        assert result.returncode != 0 and "needs a static html or image visual" in result.stderr
+        result, _ = build(directory, [item("blank", visuals=[{"type": "html"}])])
+        assert result.returncode != 0 and "needs content" in result.stderr
 
 
 def test_build_rejects_interactive_visual_with_option():
     with TemporaryDirectory() as directory:
         result, _ = build(directory, [item("mock", visuals=[
+            {"type": "html", "content": "<b>yes</b>", "option": "yes"},
             {"type": "html", "content": "<button>x</button>", "interactive": True, "option": "yes"}])])
         assert result.returncode != 0 and "interactive visual takes no option key" in result.stderr
 
@@ -103,7 +107,7 @@ console.log(store["queue:t:2"]);
 if __name__ == "__main__":
     test_build_rejects_empty_queue()
     test_build_rejects_open_item_without_visual()
-    test_build_rejects_open_item_with_only_text_visuals()
+    test_build_rejects_open_item_without_a_static_picture()
     test_build_rejects_interactive_visual_with_option()
     test_page()
     print("grill-with-html checks passed.")
