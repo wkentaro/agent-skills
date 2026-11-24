@@ -6,8 +6,18 @@ description: Queue pending questions as decisions with options, a recommendation
 # Grill with HTML
 
 Turn every unanswered question, whether already in the conversation or one you are about
-to ask, into a **decision**, then put the
+to ask, and every assumption you are about to act on, into a **decision**, then put the
 decisions to the user on one **page** and work through them in **rounds**.
+
+## Assumption audit
+
+Before each round, write down what you will do once the user answers, step by step, and
+every choice inside it you would otherwise make silently: how an edge case behaves, what
+stays unfixed or unfiled, what ships before what, what you will report and to whom.
+Each one that changes what the user gets, risks or is told becomes a decision; a routine
+choice of how to do the work, such as which check runs first, does not. The audit is
+done when every step follows from a settled decision, a stated rule or a fact, or waits
+on a decision in this round or a later one.
 
 ## Decision
 
@@ -41,8 +51,8 @@ A decision is a question the user can settle in one read. Each carries:
 Facts are your job. Look up, run, or dispatch a subagent for anything the environment can
 answer, and bring the result as evidence. Only what the user must judge becomes a decision.
 
-Ask the frontier: the decisions whose prerequisites are already settled. A decision that
-depends on an open one waits for a later round.
+Ask the frontier: every decision whose prerequisites are already settled, with no cap on
+how many. A decision that depends on an open one waits for a later round.
 
 Order decisions with the ones an agent is blocked on first, then by group.
 
@@ -55,12 +65,23 @@ file, the visuals, the build command and how answers come back.
 
 The user may answer only some decisions. After each set of answers:
 
-1. Act on every decision that has a choice. A choice the user made approves that
-   decision's draft and action, including an edited draft.
-2. Reply to every note that came without a choice. It is a question or a steer: answer
+1. Run the assumption audit on the answers: the choices, every edited draft and every
+   note. A note narrows or withdraws any action it speaks to, whatever item it is on. A
+   choice or draft that leaves a silent choice, such as a placeholder or a detail the
+   user never picked, becomes a decision.
+2. Gate every action, approved this round or held from an earlier one. Run it only when
+   it follows from the user's answers, a stated rule or a verified fact, such as the
+   result of an action it needs. A choice approves that decision's draft and action,
+   including an edited draft. Otherwise hold it until it does; drop it when the answers
+   or a result rule it out, and ask again when they change it.
+3. Reply to every note that came without a choice. It is a question or a steer: answer
    it with new evidence, or reshape the decision and its options.
-3. Recompute the frontier and ask the next round: the decisions still open, the ones
-   reshaped by a note, and the ones the answers unblocked.
+4. Recompute the frontier and ask the next round: the decisions still open, the ones
+   reshaped by a note, the ones the answers unblocked, and the ones the audit found. When
+   none remain, skip the page and report each held action and what would let it run.
 
-The work is done when every decision is settled or the user says to stop. When no
-unanswered question exists at the start, say so and stop.
+The work is done when every decision is settled and every approved action has run, been
+dropped, or been reported as waiting on something outside the user's answers, or when the
+user says to stop. When neither
+an unanswered question nor an assumption from the audit exists at the start, say so and
+stop.
