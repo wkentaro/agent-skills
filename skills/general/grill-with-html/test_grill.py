@@ -57,7 +57,7 @@ def test_build_rejects_open_item_without_visual():
 def test_build_rejects_open_item_without_a_static_picture():
     with TemporaryDirectory() as directory:
         result, _ = build(directory, [item("words", visuals=[
-            {"type": "text", "content": "v"}, {"type": "diff", "content": "+v"},
+            {"type": "text", "content": "v", "option": "yes"}, {"type": "diff", "content": "+v", "option": "no"},
             {"type": "html", "content": "<button>Run</button>", "interactive": True}])])
         assert result.returncode != 0 and "needs a static html or image visual" in result.stderr
         result, _ = build(directory, [item("half", visuals=[{"type": "html", "content": "<b>y</b>", "option": "yes"}])])
