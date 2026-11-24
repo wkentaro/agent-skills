@@ -62,13 +62,15 @@ file, the visuals, the build command and how answers come back.
 The user may answer only some decisions. After each set of answers:
 
 1. Run the assumption audit on the answers before acting: the choices, every edited
-   draft and every note. A note that comes with a choice narrows it, and can withdraw
-   the action. A choice or draft that leaves a silent choice, such as a placeholder or
-   a detail the user never picked, becomes a decision, and the action waits for it.
+   draft and every note. A note narrows or withdraws any action it speaks to, whether
+   it came with that action's choice or on another item. A choice or draft that leaves
+   a silent choice, such as a placeholder or a detail the user never picked, becomes a
+   decision, and the action waits for it.
 2. Act on every other decision that has a choice, and on every held action whose
    decisions are now settled. A choice the user made approves that decision's draft and
    action, including an edited draft. Hold an action that depends on a decision still
-   open until that decision is settled.
+   open until that decision is settled. When the settled outcome rules the held action
+   out, drop it; when it changes the action, ask again.
 3. Reply to every note that came without a choice. It is a question or a steer: answer
    it with new evidence, or reshape the decision and its options.
 4. Recompute the frontier and ask the next round: the decisions still open, the ones
