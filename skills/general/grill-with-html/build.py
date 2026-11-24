@@ -63,7 +63,10 @@ def inline_images(queue: dict, base: Path) -> None:
                 mime = mimetypes.guess_type(path.name)[0] or "image/png"
                 visual["src"] = f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"
             header, _, payload = visual["src"].partition(",")
-            data = base64.b64decode(payload) if header.endswith(";base64") else unquote_to_bytes(payload)
+            data = unquote_to_bytes(payload)
+            if header.lower().replace(" ", "").endswith(";base64"):
+                data = b"".join(data.split())
+                data = base64.b64decode(data + b"=" * (-len(data) % 4))
             assert data, f"item {item['id']!r}: an image visual has no image data"
 
 

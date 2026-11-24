@@ -1,4 +1,5 @@
 """Regression checks for build.py and the page script. Needs python3 and node."""
+import base64
 import json
 import subprocess
 import sys
@@ -73,10 +74,15 @@ def test_build_rejects_empty_image():
         result, _ = build(directory, [item("empty", visuals=[
             {"type": "image", "src": "empty.png", "option": "yes"}, {"type": "html", "content": "<b>no</b>", "option": "no"}])])
         assert result.returncode != 0 and "no image data" in result.stderr
-        for src in ["data:image/png;base64,", "data:image/svg+xml,"]:
+        for src in ["data:image/png;base64,", "data:image/svg+xml,", "data:image/png;BASE64,%20"]:
             result, _ = build(directory, [item("empty", visuals=[
                 {"type": "image", "src": src, "option": "yes"}, {"type": "html", "content": "<b>no</b>", "option": "no"}])])
             assert result.returncode != 0 and "no image data" in result.stderr, src
+        svg = base64.b64encode(b"<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8'/>").decode().rstrip("=")
+        result, _ = build(directory, [item("unpadded", visuals=[
+            {"type": "image", "src": f"data:image/svg+xml;base64,{svg}", "option": "yes"},
+            {"type": "html", "content": "<b>no</b>", "option": "no"}])])
+        assert result.returncode == 0, result.stderr
 
 
 def test_build_rejects_interactive_visual_with_option():
