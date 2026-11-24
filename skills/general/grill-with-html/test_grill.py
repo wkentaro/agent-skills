@@ -1,11 +1,15 @@
 """Regression checks for build.py and the page script. Needs python3 and node."""
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 HERE = Path(__file__).parent
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(HERE))
+from build import BROWSERS  # noqa: E402
 
 # A minimal DOM stub: enough for the page script to render and take clicks.
 STUB = """
@@ -79,6 +83,40 @@ def test_build_rejects_empty_image():
             assert result.returncode != 0 and "no image data" in result.stderr, src
 
 
+def test_build_rejects_html_visual_that_loads_a_url():
+    if not any(map(shutil.which, BROWSERS)):
+        print("skipped: no Chromium")
+        return
+    for content in ["<div style='background:url(a.png)'>", "<style>@import 'a.css';</style>"]:
+        with TemporaryDirectory() as directory:
+            result, _ = build(directory, [item("remote", visuals=[{"type": "html", "content": content, "option": "yes"},
+                                                         {"type": "html", "content": "<b>no</b>", "option": "no"}])])
+            assert result.returncode != 0 and "inline it" in result.stderr, content
+
+
+def test_build_checks_html_visuals_as_the_page_frames_them():
+    if not any(map(shutil.which, BROWSERS)):
+        print("skipped: no Chromium")
+        return
+    failing = ['<img src="https://example.com/a.png">', '<img srcset="missing.png 1x">',
+               '<iframe src="missing.html"></iframe>', "<style>@import 'a.css';</style>",
+               '<script type="module">import "./missing.js"</script>',
+               '<script>localStorage.getItem("mode")</script>', "<script>missing()</script>"]
+    passing = ['<pre>&lt;img src="a.png"&gt;</pre>', "<script>console.log('Uncaught')</script>",
+               "<style>@import url('data:text/css,b{}');</style>", "<script>parent.postMessage({h: 1}, '*')</script>",
+               "<p>REPORTER WAIT /*__CHECK__*/null</p>", "<script>const report = 1, send = 2</script>", "<pre>background: url(a.png)</pre>"]
+    with TemporaryDirectory() as directory:
+        for content in failing + passing:
+            result, _ = build(directory, [item("x", visuals=[
+                {"type": "html", "content": content, "interactive": True},
+                *item("x")["visuals"]])])
+            assert (result.returncode != 0 and "fails offline" in result.stderr) == (content in failing), \
+                (content, result.stderr)
+        result, _ = build(directory, [item("static", visuals=[
+            {"type": "html", "content": "<p>shown</p><script>missing()</script>"}, *item("x")["visuals"]])])
+        assert result.returncode == 0, "a static visual's scripts never run on the page"
+
+
 def test_build_rejects_interactive_visual_with_option():
     with TemporaryDirectory() as directory:
         result, _ = build(directory, [item("mock", visuals=[
@@ -125,6 +163,8 @@ if __name__ == "__main__":
     test_build_rejects_open_item_without_visual()
     test_build_rejects_open_item_without_a_static_picture()
     test_build_rejects_empty_image()
+    test_build_rejects_html_visual_that_loads_a_url()
+    test_build_checks_html_visuals_as_the_page_frames_them()
     test_build_rejects_interactive_visual_with_option()
     test_page()
     print("grill-with-html checks passed.")

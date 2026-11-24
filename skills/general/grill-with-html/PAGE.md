@@ -8,8 +8,11 @@ directory.
 python3 <this skill's directory>/build.py queue.json round-1.html
 ```
 
-`build.py` checks the JSON, inlines every image, and prints the count of open and
-settled items. The round is ready to share when it exits without an assertion error.
+`build.py` checks the JSON, inlines every image, and checks that the page works offline:
+it loads every `html` visual in headless Chromium, in the sandboxed frame the page uses,
+and fails on any URL the visual loads or any script error as it opens. The round is
+ready to share when it exits without an assertion error and prints `loads offline`. When
+it prints `NOT CHECKED OFFLINE`, install Chromium and build again.
 
 ## Queue file
 
