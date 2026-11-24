@@ -6,8 +6,16 @@ description: Queue pending questions as decisions with options, a recommendation
 # Grill with HTML
 
 Turn every unanswered question, whether already in the conversation or one you are about
-to ask, into a **decision**, then put the
+to ask, and every assumption you are about to act on, into a **decision**, then put the
 decisions to the user on one **page** and work through them in **rounds**.
+
+## Assumption audit
+
+Before each round, write down what you will do once the user answers, step by step, and
+every choice inside it you would otherwise make silently: how an edge case behaves, the
+order of the steps, what stays unfixed or unfiled, what you will report and to whom.
+Each one the user might decide differently becomes a decision. The audit is done when
+every remaining step follows from a settled decision, a stated rule, or a fact.
 
 ## Decision
 
@@ -37,8 +45,8 @@ A decision is a question the user can settle in one read. Each carries:
 Facts are your job. Look up, run, or dispatch a subagent for anything the environment can
 answer, and bring the result as evidence. Only what the user must judge becomes a decision.
 
-Ask the frontier: the decisions whose prerequisites are already settled. A decision that
-depends on an open one waits for a later round.
+Ask the frontier: every decision whose prerequisites are already settled, with no cap on
+how many. A decision that depends on an open one waits for a later round.
 
 Order decisions with the ones an agent is blocked on first, then by group.
 
@@ -55,8 +63,10 @@ The user may answer only some decisions. After each set of answers:
    decision's draft and action, including an edited draft.
 2. Reply to every note that came without a choice. It is a question or a steer: answer
    it with new evidence, or reshape the decision and its options.
-3. Recompute the frontier and ask the next round: the decisions still open, the ones
-   reshaped by a note, and the ones the answers unblocked.
+3. Run the assumption audit again, recompute the frontier, and ask the next round: the
+   decisions still open, the ones reshaped by a note, the ones the answers unblocked, and
+   the assumptions the answers exposed.
 
-The work is done when every decision is settled or the user says to stop. When no
-unanswered question exists at the start, say so and stop.
+The work is done when every decision is settled or the user says to stop. When neither
+an unanswered question nor an assumption from the audit exists at the start, say so and
+stop.
