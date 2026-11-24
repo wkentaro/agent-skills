@@ -12,10 +12,12 @@ decisions to the user on one **page** and work through them in **rounds**.
 ## Assumption audit
 
 Before each round, write down what you will do once the user answers, step by step, and
-every choice inside it you would otherwise make silently: how an edge case behaves, the
-order of the steps, what stays unfixed or unfiled, what you will report and to whom.
-Each one the user might decide differently becomes a decision. The audit is done when
-every remaining step follows from a settled decision, a stated rule, or a fact.
+every choice inside it you would otherwise make silently: how an edge case behaves, what
+stays unfixed or unfiled, what ships before what, what you will report and to whom.
+Each one that changes what the user gets, risks or is told becomes a decision; a routine
+choice of how to do the work, such as which check runs first, does not. The audit is
+done when every step follows from a settled decision, a stated rule or a fact, or waits
+on a decision in this round or a later one.
 
 ## Decision
 
@@ -60,7 +62,8 @@ file, the visuals, the build command and how answers come back.
 The user may answer only some decisions. After each set of answers:
 
 1. Act on every decision that has a choice. A choice the user made approves that
-   decision's draft and action, including an edited draft.
+   decision's draft and action, including an edited draft. Hold an action that depends
+   on a decision still open until that decision is settled.
 2. Reply to every note that came without a choice. It is a question or a steer: answer
    it with new evidence, or reshape the decision and its options.
 3. Run the assumption audit again, recompute the frontier, and ask the next round: the
