@@ -1,4 +1,5 @@
 """Regression checks for build.py and the page script. Needs python3 and node."""
+import html
 import json
 import subprocess
 import sys
@@ -121,9 +122,14 @@ def test_build_warns_on_html_visual_that_loads_a_url():
             {"type": "html", "content": '<script src="demo.js"></script><b>yes</b>', "option": "yes"},
             {"type": "html", "content": "<b>no</b>", "option": "no"}])])
         assert "may load" not in result.stderr, ("a static visual runs no script", result.stderr)
-        result, page = build(directory, [item("x", settled={"choice": "done"},
-                                              visuals=[{"type": "html", "content": f'<img alt="&#{"0" * 5000}65;">'}])])
-        assert result.returncode == 0 and page.exists() and "could not scan" in result.stderr, result.stderr
+    nested = "<b>deep</b>"
+    for _ in range(200):
+        nested = f'<iframe srcdoc="{html.escape(nested)}"></iframe>'
+    for content in [f'<img alt="&#{"0" * 5000}65;">', nested]:
+        with TemporaryDirectory() as directory:
+            result, page = build(directory, [item("x", settled={"choice": "done"},
+                                                  visuals=[{"type": "html", "content": content}])])
+            assert result.returncode == 0 and page.exists() and "could not scan" in result.stderr, result.stderr[-500:]
 
 
 def test_page():

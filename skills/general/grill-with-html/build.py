@@ -147,7 +147,7 @@ def warn_remote(queue: dict) -> None:
             if visual.get("type") == "html" and isinstance(visual.get("content"), str):
                 try:
                     urls = remote_urls(visual["content"], bool(visual.get("interactive")))
-                except ValueError as error:
+                except (ValueError, RecursionError) as error:
                     print(f"warning: item {item['id']!r}: could not scan an html visual: {error}", file=sys.stderr)
                     continue
                 for url in urls:
