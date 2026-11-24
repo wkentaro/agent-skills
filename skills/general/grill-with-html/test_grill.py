@@ -90,7 +90,7 @@ def test_build_rejects_interactive_visual_with_option():
         assert result.returncode != 0 and "interactive visual takes no option key" in result.stderr
 
 
-def test_build_rejects_html_visual_that_loads_a_url():
+def test_build_warns_on_html_visual_that_loads_a_url():
     loads = ['<img src="shot.png">', '<img srcset="data:image/png;base64,A,B 1x, shot@2x.png 2x">',
              '<div style="background: url(&quot;bg.png&quot;)">', '<style>@import "https://cdn.example/a.css";</style>',
              '<svg><image href="map.png"/></svg>', '<script src="https://cdn.example/a.js"></script>',
@@ -115,11 +115,12 @@ def test_build_rejects_html_visual_that_loads_a_url():
         for content in loads + shows:
             result, _ = build(directory, [item("x", settled={"choice": "done"},
                                                visuals=[{"type": "html", "content": content, "interactive": True}])])
-            assert (result.returncode == 0) == (content in shows), (content, result.stderr)
+            assert result.returncode == 0, (content, result.stderr)
+            assert ("may load" in result.stderr) == (content in loads), (content, result.stderr)
         result, _ = build(directory, [item("snapshot", visuals=[
             {"type": "html", "content": '<script src="demo.js"></script><b>yes</b>', "option": "yes"},
             {"type": "html", "content": "<b>no</b>", "option": "no"}])])
-        assert result.returncode == 0, ("a static visual runs no script", result.stderr)
+        assert "may load" not in result.stderr, ("a static visual runs no script", result.stderr)
 
 
 def test_page():
@@ -161,6 +162,6 @@ if __name__ == "__main__":
     test_build_rejects_open_item_without_a_static_picture()
     test_build_rejects_empty_image()
     test_build_rejects_interactive_visual_with_option()
-    test_build_rejects_html_visual_that_loads_a_url()
+    test_build_warns_on_html_visual_that_loads_a_url()
     test_page()
     print("grill-with-html checks passed.")

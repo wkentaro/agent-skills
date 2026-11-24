@@ -95,10 +95,6 @@ def check(queue: dict) -> None:
             assert item.get(key), f"{where} is missing {key!r}"
         assert isinstance(item["summary"], list), f"{where}: summary is a list of paragraphs"
         assert item["door"] in ("two-way", "one-way"), f"{where}: door is two-way or one-way"
-        for visual in item.get("visuals") or []:
-            if visual.get("type") == "html" and isinstance(visual.get("content"), str):
-                remote = remote_urls(visual["content"], bool(visual.get("interactive")))
-                assert not remote, f"{where}: an html visual loads {remote[0]!r}; inline it, since the shared page loads no URL"
         for evidence in item["evidence"]:
             assert evidence.get("level") in LEVELS, f"{where}: evidence level must be one of {sorted(LEVELS)}"
             assert evidence.get("text"), f"{where}: evidence needs text"
@@ -145,10 +141,19 @@ def inline_images(queue: dict, base: Path) -> None:
             assert data or item.get("settled"), f"item {item['id']!r}: an image visual has no image data"
 
 
+def warn_remote(queue: dict) -> None:
+    for item in queue["items"]:
+        for visual in item.get("visuals") or []:
+            if visual.get("type") == "html" and isinstance(visual.get("content"), str):
+                for url in remote_urls(visual["content"], bool(visual.get("interactive"))):
+                    print(f"warning: item {item['id']!r}: an html visual may load {url!r}", file=sys.stderr)
+
+
 def main() -> None:
     source, target = Path(sys.argv[1]), Path(sys.argv[2])
     queue = json.loads(source.read_text())
     check(queue)
+    warn_remote(queue)
     inline_images(queue, source.parent)
     template = (Path(__file__).parent / "template.html").read_text()
     marker = "/*__QUEUE__*/null"

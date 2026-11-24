@@ -9,12 +9,12 @@ python3 <this skill's directory>/build.py queue.json round-1.html
 ```
 
 `build.py` checks the JSON, inlines every image, and prints the count of open and
-settled items. It rejects an `html` visual whose markup loads a URL, such as an image,
-a stylesheet, or in an interactive visual a script or a module import, since the shared
-page loads none; inline what it loads as a `data:` URL instead. It reads only the URLs
-the markup and CSS spell out, not one a script builds or a `data:` stylesheet holds, so
-when a visual runs scripts, open the page with the network blocked before sharing it.
-Fix every assertion error before sharing.
+settled items. Fix every assertion error. The shared page loads no URL, so `build.py`
+also warns about each URL an `html` visual's markup or CSS may load, such as an image,
+a stylesheet, or in an interactive visual a script or a module import. Inline what it
+loads as a `data:` URL, or confirm it loads nothing. It cannot see a URL a script builds
+or a `data:` stylesheet holds, so when a visual runs scripts, open the page with the
+network blocked before sharing it.
 
 ## Queue file
 
