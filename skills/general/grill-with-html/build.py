@@ -38,9 +38,9 @@ def check(queue: dict) -> None:
         for visual in item["visuals"]:
             assert visual.get("type") in VISUALS, f"{where}: visual type must be one of {sorted(VISUALS)}"
             if visual["type"] == "html":
-                assert str(visual.get("content") or "").strip(), f"{where}: an html visual needs content"
+                assert isinstance(visual.get("content"), str) and visual["content"].strip(), f"{where}: an html visual needs content"
             if visual["type"] == "image":
-                assert str(visual.get("src") or "").strip(), f"{where}: an image visual needs src"
+                assert isinstance(visual.get("src"), str) and visual["src"].strip(), f"{where}: an image visual needs src"
             assert visual.get("option") in (None, *keys), f"{where}: visual option {visual.get('option')!r} is not an option key"
             if visual.get("interactive"):
                 assert visual["type"] == "html", f"{where}: only html visuals can be interactive"
