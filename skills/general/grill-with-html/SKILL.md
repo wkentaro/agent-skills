@@ -24,12 +24,16 @@ A decision is a question the user can settle in one read. Each carries:
   - `claimed`: a person's statement, such as an issue thread or a PR description.
 - **Options**: two to four mutually exclusive choices, each with its consequence in one
   sentence. Mark the one you recommend. Leave all unmarked only when the choice is taste.
-- **Visual**: what each option produces, so the user answers by picking a picture rather
-  than by reading. When options differ in what the user would see or experience, give
-  each its own visual. A pure policy call with nothing to show still gets one plain-text
-  visual. When a static visual cannot settle the choice, such as how an interaction
-  feels or how a state model handles a tricky sequence, build it with the `prototype`
-  skill.
+- **Visual**: a drawing of what each option produces, so the user answers by picking a
+  picture rather than by reading. Every option gets its own `html` or `image` picture,
+  such as a screen, a timeline of a count, or a flow of the steps that follow; text and
+  diff only add to them. A policy call still gets a picture of where each option leads.
+  Draw from the real code, data or output, not from your summary of it. When drawing
+  shows a claim of yours is wrong, correct the claim and its evidence.
+  When a sequence decides the choice, such as how an interaction feels or how a state
+  model handles a tricky order of events, build a walkthrough with the `prototype` skill
+  and keep one static picture per option beside it, so the user can still pick by
+  picture.
 - **Danger**: the door (`two-way` when the choice can be undone, `one-way` when it cannot)
   and the blast radius in a few words.
 - **Draft**: the exact text that will be posted or sent if the user accepts, when there is one.

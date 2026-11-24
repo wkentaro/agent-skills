@@ -1,4 +1,5 @@
 """Regression checks for build.py and the page script. Needs python3 and node."""
+import html
 import json
 import subprocess
 import sys
@@ -24,7 +25,7 @@ def item(id, **extra):
             "door": "two-way", "blast": "one"}
     if "settled" not in extra:
         base["options"] = [{"key": "yes", "recommended": True}, {"key": "no"}]
-        base["visuals"] = [{"type": "text", "content": "v"}]
+        base["visuals"] = [{"type": "html", "content": f"<b>{key}</b>", "option": key} for key in ("yes", "no")]
     return {**base, **extra}
 
 
@@ -54,11 +55,81 @@ def test_build_rejects_open_item_without_visual():
         assert result.returncode != 0 and "needs at least one visual" in result.stderr
 
 
+def test_build_rejects_open_item_without_a_static_picture():
+    with TemporaryDirectory() as directory:
+        result, _ = build(directory, [item("words", visuals=[
+            {"type": "text", "content": "v", "option": "yes"}, {"type": "diff", "content": "+v", "option": "no"},
+            {"type": "html", "content": "<button>Run</button>", "interactive": True}])])
+        assert result.returncode != 0 and "needs a static html or image visual" in result.stderr
+        result, _ = build(directory, [item("half", visuals=[{"type": "html", "content": "<b>y</b>", "option": "yes"}])])
+        assert result.returncode != 0 and "for option 'no'" in result.stderr
+        result, _ = build(directory, [item("blank", visuals=[{"type": "html", "content": "<b>y</b>", "option": "yes"},
+                                                        {"type": "html", "content": "  \n", "option": "no"}])])
+        assert result.returncode != 0 and "needs content" in result.stderr
+
+
+def test_build_rejects_empty_image():
+    with TemporaryDirectory() as directory:
+        (Path(directory) / "empty.png").write_bytes(b"")
+        result, _ = build(directory, [item("empty", visuals=[
+            {"type": "image", "src": "empty.png", "option": "yes"}, {"type": "html", "content": "<b>no</b>", "option": "no"}])])
+        assert result.returncode != 0 and "no image data" in result.stderr
+        for src in ["data:image/png;base64,", "data:image/svg+xml, "]:
+            result, _ = build(directory, [item("empty", visuals=[
+                {"type": "image", "src": src, "option": "yes"}, {"type": "html", "content": "<b>no</b>", "option": "no"}])])
+            assert result.returncode != 0 and "no image data" in result.stderr, src
+        result, _ = build(directory, [item("open"), item("carried", settled={"choice": "done"},
+                                                         visuals=[{"type": "image", "src": "empty.png"}])])
+        assert result.returncode == 0, ("a settled item keeps its old picture", result.stderr)
+
+
 def test_build_rejects_interactive_visual_with_option():
     with TemporaryDirectory() as directory:
         result, _ = build(directory, [item("mock", visuals=[
+            {"type": "html", "content": "<b>yes</b>", "option": "yes"},
             {"type": "html", "content": "<button>x</button>", "interactive": True, "option": "yes"}])])
         assert result.returncode != 0 and "interactive visual takes no option key" in result.stderr
+
+
+def test_build_warns_on_html_visual_that_loads_a_url():
+    loads = ['<img src="shot.png">', '<img srcset="data:image/png;base64,A,B 1x, shot@2x.png 2x">',
+             '<div style="background: url(&quot;bg.png&quot;)">', '<style>@import "https://cdn.example/a.css";</style>',
+             '<svg><image href="map.png"/></svg>', '<script src="https://cdn.example/a.js"></script>',
+             '<script type="module">import { h } from "https://esm.sh/preact";</script>',
+             '<meta http-equiv="refresh" content="0; url=https://example.com">',
+             '<iframe srcdoc="&lt;img src=shot.png&gt;"></iframe>', '<style>@import"theme.css";</style>',
+             '<style>.a { background: image-set(url(data:image/gif;base64,AA) 1x, "large.png" 2x) }</style>',
+             '<svg><rect fill="url(paints.svg#fade)"/></svg>', '<link rel="preload" as="image" imagesrcset="head.png 1x">',
+             '<img srcset="data:image/gif;base64,AA 1x,data:image/gif;base64,AA, large.png 2x">',
+             '<script>fetch ("https://example.com/data.json")</script>', '<script>window.fetch("data.json")</script>',
+             '<svg><image xlink:href="map.png"/></svg>', '<object data="chart.svg"></object>',
+             '<script type="module">export { scale } from "https://esm.sh/d3";</script>']
+    shows = ['<pre>&lt;img src="shot.png"&gt; url(bg.png) https://example.com</pre>',
+             '<img src="data:image/png;base64,AA"><svg><use href="#dot"/></svg>',
+             '<style>/* url(old.png) */ .a { background: url(data:image/png;base64,AA) }</style>',
+             '<a href="https://example.com">source</a>', '<svg><rect fill="url(#fade)"/></svg>',
+             '<style>.a { background: image-set("data:image/gif;base64,AA" type("image/gif") 1x) }</style>',
+             '<img srcset=",data:image/gif;base64,AA 1x,,data:image/gif;base64,AA 2x">',
+             '<svg><a xlink:href="https://example.com"><text>Docs</text></a></svg>', '<script>api.fetch("/api/tasks")</script>',
+             '<demo-chart data="[1,2]"></demo-chart>']
+    with TemporaryDirectory() as directory:
+        for content in loads + shows:
+            result, _ = build(directory, [item("x", settled={"choice": "done"},
+                                               visuals=[{"type": "html", "content": content, "interactive": True}])])
+            assert result.returncode == 0, (content, result.stderr)
+            assert ("may load" in result.stderr) == (content in loads), (content, result.stderr)
+        result, _ = build(directory, [item("snapshot", visuals=[
+            {"type": "html", "content": '<script src="demo.js"></script><b>yes</b>', "option": "yes"},
+            {"type": "html", "content": "<b>no</b>", "option": "no"}])])
+        assert "may load" not in result.stderr, ("a static visual runs no script", result.stderr)
+    nested = "<b>deep</b>"
+    for _ in range(200):
+        nested = f'<iframe srcdoc="{html.escape(nested)}"></iframe>'
+    for content in [f'<img alt="&#{"0" * 5000}65;">', nested]:
+        with TemporaryDirectory() as directory:
+            result, page = build(directory, [item("x", settled={"choice": "done"},
+                                                  visuals=[{"type": "html", "content": content}])])
+            assert result.returncode == 0 and page.exists() and "could not scan" in result.stderr, result.stderr[-500:]
 
 
 def test_page():
@@ -66,7 +137,8 @@ def test_page():
         result, html = build(directory, [
             item("settled", settled={"choice": "done"}, visuals=[{"type": "text", "content": "v", "option": "yes"}]),
             item("constructor", summary=["<!-- <script> example source"]),
-            item("noted", visuals=[{"type": "html", "content": "<b>static</b>"},
+            item("noted", visuals=[{"type": "html", "content": "<b>yes</b>", "option": "yes"},
+                                   {"type": "html", "content": "<b>no</b>", "option": "no"},
                                    {"type": "html", "content": "<b>live</b>", "interactive": True}]),
             item("old", settled={"choice": "done"}, options=[{"key": "yes"}, {"key": "no"}],
                  visuals=[{"type": "text", "content": "v", "option": "no"}]),
@@ -86,7 +158,7 @@ console.log(store["queue:t:2"]);
 """).splitlines()
         assert json.loads(out[0]) == ["constructor", "noted", "settled", "old"], "settled items go last"
         assert out[1] == "false", "settled visuals are not choices"
-        assert json.loads(out[2]) == ['sandbox=""', 'sandbox="allow-scripts"'], \
+        assert json.loads(out[2]) == ['sandbox=""', 'sandbox=""', 'sandbox="allow-scripts"'], \
             "only interactive visuals run scripts, and never with allow-same-origin"
         assert json.loads(out[3]) == "queue: t  round: 2\nconstructor: yes\nnoted: ?\n  note: why?", \
             "bulk accept skips note-only items and settled items without options"
@@ -96,6 +168,9 @@ console.log(store["queue:t:2"]);
 if __name__ == "__main__":
     test_build_rejects_empty_queue()
     test_build_rejects_open_item_without_visual()
+    test_build_rejects_open_item_without_a_static_picture()
+    test_build_rejects_empty_image()
     test_build_rejects_interactive_visual_with_option()
+    test_build_warns_on_html_visual_that_loads_a_url()
     test_page()
     print("grill-with-html checks passed.")
