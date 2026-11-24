@@ -145,7 +145,12 @@ def warn_remote(queue: dict) -> None:
     for item in queue["items"]:
         for visual in item.get("visuals") or []:
             if visual.get("type") == "html" and isinstance(visual.get("content"), str):
-                for url in remote_urls(visual["content"], bool(visual.get("interactive"))):
+                try:
+                    urls = remote_urls(visual["content"], bool(visual.get("interactive")))
+                except ValueError as error:
+                    print(f"warning: item {item['id']!r}: could not scan an html visual: {error}", file=sys.stderr)
+                    continue
+                for url in urls:
                     print(f"warning: item {item['id']!r}: an html visual may load {url!r}", file=sys.stderr)
 
 

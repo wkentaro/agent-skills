@@ -13,8 +13,9 @@ settled items. Fix every assertion error. The shared page loads no URL, so `buil
 also warns about each URL an `html` visual's markup or CSS may load, such as an image,
 a stylesheet, or in an interactive visual a script or a module import. Inline what it
 loads as a `data:` URL, or confirm it loads nothing. It cannot see a URL a script builds
-or a `data:` stylesheet holds, so when a visual runs scripts, open the page with the
-network blocked before sharing it.
+or a `data:` stylesheet holds. When a visual runs scripts or holds a `data:` stylesheet,
+open the page with the network blocked, select each such item, and click through its
+walkthrough before sharing, since the page shows only the selected item.
 
 ## Queue file
 

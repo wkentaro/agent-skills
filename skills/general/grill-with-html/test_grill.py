@@ -121,6 +121,9 @@ def test_build_warns_on_html_visual_that_loads_a_url():
             {"type": "html", "content": '<script src="demo.js"></script><b>yes</b>', "option": "yes"},
             {"type": "html", "content": "<b>no</b>", "option": "no"}])])
         assert "may load" not in result.stderr, ("a static visual runs no script", result.stderr)
+        result, page = build(directory, [item("x", settled={"choice": "done"},
+                                              visuals=[{"type": "html", "content": f'<img alt="&#{"0" * 5000}65;">'}])])
+        assert result.returncode == 0 and page.exists() and "could not scan" in result.stderr, result.stderr
 
 
 def test_page():
