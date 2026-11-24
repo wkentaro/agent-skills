@@ -72,7 +72,11 @@ def test_build_rejects_empty_image():
         (Path(directory) / "empty.png").write_bytes(b"")
         result, _ = build(directory, [item("empty", visuals=[
             {"type": "image", "src": "empty.png", "option": "yes"}, {"type": "html", "content": "<b>no</b>", "option": "no"}])])
-        assert result.returncode != 0 and "is empty" in result.stderr
+        assert result.returncode != 0 and "no image data" in result.stderr
+        for src in ["data:image/png;base64,", "data:image/svg+xml,"]:
+            result, _ = build(directory, [item("empty", visuals=[
+                {"type": "image", "src": src, "option": "yes"}, {"type": "html", "content": "<b>no</b>", "option": "no"}])])
+            assert result.returncode != 0 and "no image data" in result.stderr, src
 
 
 def test_build_rejects_interactive_visual_with_option():

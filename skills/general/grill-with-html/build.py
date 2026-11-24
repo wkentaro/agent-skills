@@ -5,6 +5,7 @@ import json
 import mimetypes
 import sys
 from pathlib import Path
+from urllib.parse import unquote_to_bytes
 
 LEVELS = {"ran", "seen", "read", "reported", "claimed"}
 VISUALS = {"text", "diff", "image", "html"}
@@ -55,11 +56,15 @@ def check(queue: dict) -> None:
 def inline_images(queue: dict, base: Path) -> None:
     for item in queue["items"]:
         for visual in item.get("visuals") or []:
-            if visual["type"] == "image" and not visual["src"].startswith("data:"):
+            if visual["type"] != "image":
+                continue
+            if not visual["src"].startswith("data:"):
                 path = (base / visual["src"]).expanduser()
-                assert path.stat().st_size, f"item {item['id']!r}: image {visual['src']!r} is empty"
                 mime = mimetypes.guess_type(path.name)[0] or "image/png"
                 visual["src"] = f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"
+            header, _, payload = visual["src"].partition(",")
+            data = base64.b64decode(payload) if header.endswith(";base64") else unquote_to_bytes(payload)
+            assert data, f"item {item['id']!r}: an image visual has no image data"
 
 
 def main() -> None:
