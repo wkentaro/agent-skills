@@ -58,6 +58,8 @@ def inline_images(queue: dict, base: Path) -> None:
             if visual["type"] != "image":
                 continue
             if visual["src"].startswith("data:"):
+                if item.get("settled"):
+                    continue
                 data = visual["src"].partition(",")[2].strip()
             else:
                 path = (base / visual["src"]).expanduser()
