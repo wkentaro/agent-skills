@@ -9,7 +9,10 @@ python3 <this skill's directory>/build.py queue.json round-1.html
 ```
 
 `build.py` checks the JSON, inlines every image, and prints the count of open and
-settled items. The round is ready to share when it exits without an assertion error.
+settled items. It rejects an `html` visual that loads a URL, such as an image, a
+stylesheet, a script or a module import, since the shared page loads none; inline what
+it loads as a `data:` URL instead. It cannot see a URL a script builds at run time. The
+round is ready to share when it exits without an assertion error.
 
 ## Queue file
 

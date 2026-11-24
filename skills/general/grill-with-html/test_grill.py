@@ -90,6 +90,37 @@ def test_build_rejects_interactive_visual_with_option():
         assert result.returncode != 0 and "interactive visual takes no option key" in result.stderr
 
 
+def test_build_rejects_html_visual_that_loads_a_url():
+    loads = ['<img src="shot.png">', '<img srcset="data:image/png;base64,A,B 1x, shot@2x.png 2x">',
+             '<div style="background: url(&quot;bg.png&quot;)">', '<style>@import "https://cdn.example/a.css";</style>',
+             '<svg><image href="map.png"/></svg>', '<script src="https://cdn.example/a.js"></script>',
+             '<script type="module">import { h } from "https://esm.sh/preact";</script>',
+             '<meta http-equiv="refresh" content="0; url=https://example.com">',
+             '<iframe srcdoc="&lt;img src=shot.png&gt;"></iframe>', '<style>@import"theme.css";</style>',
+             '<style>.a { background: image-set(url(data:image/gif;base64,AA) 1x, "large.png" 2x) }</style>',
+             '<svg><rect fill="url(paints.svg#fade)"/></svg>', '<link rel="preload" as="image" imagesrcset="head.png 1x">',
+             '<img srcset="data:image/gif;base64,AA 1x,data:image/gif;base64,AA, large.png 2x">',
+             '<script>fetch ("https://example.com/data.json")</script>', '<script>window.fetch("data.json")</script>',
+             '<svg><image xlink:href="map.png"/></svg>',
+             '<script type="module">export { scale } from "https://esm.sh/d3";</script>']
+    shows = ['<pre>&lt;img src="shot.png"&gt; url(bg.png) https://example.com</pre>',
+             '<img src="data:image/png;base64,AA"><svg><use href="#dot"/></svg>',
+             '<style>/* url(old.png) */ .a { background: url(data:image/png;base64,AA) }</style>',
+             '<a href="https://example.com">source</a>', '<svg><rect fill="url(#fade)"/></svg>',
+             '<style>.a { background: image-set("data:image/gif;base64,AA" type("image/gif") 1x) }</style>',
+             '<img srcset=",data:image/gif;base64,AA 1x,,data:image/gif;base64,AA 2x">',
+             '<svg><a xlink:href="https://example.com"><text>Docs</text></a></svg>', '<script>api.fetch("/api/tasks")</script>']
+    with TemporaryDirectory() as directory:
+        for content in loads:
+            result, _ = build(directory, [item("remote", settled={"choice": "done"},
+                                                visuals=[{"type": "html", "content": content}])])
+            assert result.returncode != 0 and "an html visual loads" in result.stderr, content
+        for content in shows:
+            result, _ = build(directory, [item("local", visuals=[{"type": "html", "content": content, "option": "yes"},
+                                                                 {"type": "html", "content": "<b>no</b>", "option": "no"}])])
+            assert result.returncode == 0, (content, result.stderr)
+
+
 def test_page():
     with TemporaryDirectory() as directory:
         result, html = build(directory, [
@@ -129,5 +160,6 @@ if __name__ == "__main__":
     test_build_rejects_open_item_without_a_static_picture()
     test_build_rejects_empty_image()
     test_build_rejects_interactive_visual_with_option()
+    test_build_rejects_html_visual_that_loads_a_url()
     test_page()
     print("grill-with-html checks passed.")

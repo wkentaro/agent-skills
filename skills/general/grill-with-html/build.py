@@ -3,12 +3,80 @@
 import base64
 import json
 import mimetypes
+import re
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
 
 LEVELS = {"ran", "seen", "read", "reported", "claimed"}
 VISUALS = {"text", "diff", "image", "html"}
 DRAWN = {"image", "html"}
+LOCAL = ("data:", "blob:", "#", "about:", "javascript:")
+URL_ATTRIBUTES = {"src", "poster", "data", "background"}
+HREF_TAGS = {"link", "image", "use", "feimage"}
+PAINT_ATTRIBUTES = {"fill", "stroke", "filter", "clip-path", "mask", "marker-start", "marker-mid", "marker-end"}
+
+
+def css_urls(css: str) -> list[str]:
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    urls = [m[1] for m in re.finditer(r"url\(\s*['\"]?(.*?)['\"]?\s*\)", css, flags=re.I)]
+    urls += [m[2] for m in re.finditer(r"@import\s*(['\"])(.*?)\1", css, flags=re.I)]
+    for start in re.finditer(r"image-set\(", css, flags=re.I):
+        depth, end = 1, start.end()
+        while end < len(css) and depth:
+            depth += {"(": 1, ")": -1}.get(css[end], 0)
+            end += 1
+        candidates = re.sub(r"(?:url|type)\([^)]*\)", "", css[start.end():end], flags=re.I)
+        urls += [m[2] for m in re.finditer(r"(['\"])(.*?)\1", candidates)]
+    return urls
+
+
+def srcset_urls(srcset: str) -> list[str]:
+    urls, expecting = [], True
+    for token in srcset.split():
+        if expecting:
+            urls.append(token.strip(","))
+        elif "," in token and token.split(",", 1)[1]:
+            urls.append(token.split(",", 1)[1].strip(","))
+        expecting = token.endswith(",")
+    return urls
+
+
+class LoadedUrls(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.urls, self.raw = [], None
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        self.raw = tag if tag in ("style", "script") else None
+        self.urls += [value for name, value in attrs.items() if name in URL_ATTRIBUTES and value]
+        if tag in HREF_TAGS:
+            self.urls += [attrs.get("href") or "", attrs.get("xlink:href") or ""]
+        for name in ("srcset", "imagesrcset"):
+            self.urls += srcset_urls(attrs.get(name) or "")
+        for name in ("style", *PAINT_ATTRIBUTES):
+            self.urls += css_urls(attrs.get(name) or "")
+        self.urls += remote_urls(attrs.get("srcdoc") or "")
+        if tag == "meta" and (attrs.get("http-equiv") or "").lower() == "refresh":
+            self.urls += re.findall(r"url\s*=\s*['\"]?([^'\"\s;]+)", attrs.get("content") or "", flags=re.I)
+
+    def handle_endtag(self, tag):
+        if tag == self.raw:
+            self.raw = None
+
+    def handle_data(self, data):
+        if self.raw == "style":
+            self.urls += css_urls(data)
+        if self.raw == "script":
+            self.urls += [m[2] or m[4] for m in re.finditer(r"\b(?:import|export)\s*(?:\(\s*|[\w$*{}\s,]+?\bfrom\s*)?(['\"])(.*?)\1|(?<![\w$.])(?:(?:window|self|globalThis)\.)?fetch\s*\(\s*(['\"`])(.*?)\3", data)]
+
+
+def remote_urls(content: str) -> list[str]:
+    parser = LoadedUrls()
+    parser.feed(content)
+    parser.close()
+    return [url for url in parser.urls if url.strip() and not url.strip().lower().startswith(LOCAL)]
 
 
 def check(queue: dict) -> None:
@@ -23,6 +91,10 @@ def check(queue: dict) -> None:
             assert item.get(key), f"{where} is missing {key!r}"
         assert isinstance(item["summary"], list), f"{where}: summary is a list of paragraphs"
         assert item["door"] in ("two-way", "one-way"), f"{where}: door is two-way or one-way"
+        for visual in item.get("visuals") or []:
+            if visual.get("type") == "html" and isinstance(visual.get("content"), str):
+                remote = remote_urls(visual["content"])
+                assert not remote, f"{where}: an html visual loads {remote[0]!r}; inline it, since the shared page loads no URL"
         for evidence in item["evidence"]:
             assert evidence.get("level") in LEVELS, f"{where}: evidence level must be one of {sorted(LEVELS)}"
             assert evidence.get("text"), f"{where}: evidence needs text"
