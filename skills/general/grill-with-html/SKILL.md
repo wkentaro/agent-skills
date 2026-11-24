@@ -61,22 +61,21 @@ file, the visuals, the build command and how answers come back.
 
 The user may answer only some decisions. After each set of answers:
 
-1. Run the assumption audit on the answers before acting: the choices, every edited
-   draft and every note. A note narrows or withdraws any action it speaks to, whether
-   it came with that action's choice or on another item. A choice or draft that leaves
-   a silent choice, such as a placeholder or a detail the user never picked, becomes a
-   decision, and the action waits for it.
-2. Act on every other decision that has a choice, and on every held action whose
-   decisions are now settled. A choice the user made approves that decision's draft and
-   action, including an edited draft. Hold an action that depends on a decision still
-   open until that decision is settled. When the settled outcome rules the held action
-   out, drop it; when it changes the action, ask again.
+1. Run the assumption audit on the answers: the choices, every edited draft and every
+   note. A note narrows or withdraws any action it speaks to, whatever item it is on. A
+   choice or draft that leaves a silent choice, such as a placeholder or a detail the
+   user never picked, becomes a decision.
+2. Gate every action, approved this round or held from an earlier one. Run it only when
+   it follows from the user's answers, a stated rule or a verified fact, such as the
+   result of an action it needs. A choice approves that decision's draft and action,
+   including an edited draft. Otherwise hold it until it does; drop it when the answers
+   or a result rule it out, and ask again when they change it.
 3. Reply to every note that came without a choice. It is a question or a steer: answer
    it with new evidence, or reshape the decision and its options.
 4. Recompute the frontier and ask the next round: the decisions still open, the ones
    reshaped by a note, the ones the answers unblocked, and the ones the audit found.
 
-The work is done when every decision is settled and no approved action is held, or the
-user says to stop. When neither
+The work is done when every decision is settled and every approved action has run or been
+dropped, or the user says to stop. When neither
 an unanswered question nor an assumption from the audit exists at the start, say so and
 stop.
