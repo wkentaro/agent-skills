@@ -24,7 +24,7 @@ def item(id, **extra):
             "door": "two-way", "blast": "one"}
     if "settled" not in extra:
         base["options"] = [{"key": "yes", "recommended": True}, {"key": "no"}]
-        base["visuals"] = [{"type": "text", "content": "v"}]
+        base["visuals"] = [{"type": "html", "content": "<b>v</b>"}]
     return {**base, **extra}
 
 
@@ -52,6 +52,13 @@ def test_build_rejects_open_item_without_visual():
     with TemporaryDirectory() as directory:
         result, _ = build(directory, [item("bare", visuals=[])])
         assert result.returncode != 0 and "needs at least one visual" in result.stderr
+
+
+def test_build_rejects_open_item_with_only_text_visuals():
+    with TemporaryDirectory() as directory:
+        result, _ = build(directory, [item("words", visuals=[
+            {"type": "text", "content": "v"}, {"type": "diff", "content": "+v"}])])
+        assert result.returncode != 0 and "needs an html or image visual" in result.stderr
 
 
 def test_build_rejects_interactive_visual_with_option():
@@ -96,6 +103,7 @@ console.log(store["queue:t:2"]);
 if __name__ == "__main__":
     test_build_rejects_empty_queue()
     test_build_rejects_open_item_without_visual()
+    test_build_rejects_open_item_with_only_text_visuals()
     test_build_rejects_interactive_visual_with_option()
     test_page()
     print("grill-with-html checks passed.")

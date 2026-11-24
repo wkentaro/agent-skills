@@ -66,7 +66,8 @@ more than a handful of things.
 
 ## Visuals
 
-Every open decision has a visual. Use the richest type that fits:
+Every open decision has at least one `image` or `html` visual. `diff` and `text` only add
+to one. Use the richest type that fits:
 
 1. `image`: a screenshot or rendered output. `src` is a path relative to the JSON file.
 2. `html`: a small self-contained mock in `content`, shown in a sandboxed frame.
@@ -77,7 +78,8 @@ Every open decision has a visual. Use the richest type that fits:
 4. `text`: a tree, pseudocode or ASCII diagram.
 
 Embed a single-file prototype from the `prototype` skill as an interactive `html`
-visual. Link a prototype that needs a dev server from `links`.
+visual, next to one static visual per option. Link a prototype that needs a dev server
+from `links`.
 
 Give a visual an `option` key when it shows what that option produces. The user can then
 click the visual to choose it, and options with visuals sit side by side for comparison.

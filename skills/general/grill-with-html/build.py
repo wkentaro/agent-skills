@@ -8,6 +8,7 @@ from pathlib import Path
 
 LEVELS = {"ran", "seen", "read", "reported", "claimed"}
 VISUALS = {"text", "diff", "image", "html"}
+DRAWN = {"image", "html"}
 
 
 def check(queue: dict) -> None:
@@ -34,6 +35,8 @@ def check(queue: dict) -> None:
         assert len(keys) == len(set(keys)), f"{where}: option keys must be unique"
         assert sum(bool(option.get("recommended")) for option in options) <= 1, f"{where}: at most one recommended option"
         assert item.get("visuals"), f"{where} needs at least one visual"
+        assert any(visual.get("type") in DRAWN for visual in item["visuals"]), \
+            f"{where} needs an html or image visual; text and diff only add to one"
         for visual in item["visuals"]:
             assert visual.get("type") in VISUALS, f"{where}: visual type must be one of {sorted(VISUALS)}"
             assert visual.get("option") in (None, *keys), f"{where}: visual option {visual.get('option')!r} is not an option key"
