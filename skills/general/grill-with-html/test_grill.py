@@ -67,6 +67,14 @@ def test_build_rejects_open_item_without_a_static_picture():
         assert result.returncode != 0 and "needs content" in result.stderr
 
 
+def test_build_rejects_empty_image():
+    with TemporaryDirectory() as directory:
+        (Path(directory) / "empty.png").write_bytes(b"")
+        result, _ = build(directory, [item("empty", visuals=[
+            {"type": "image", "src": "empty.png", "option": "yes"}, {"type": "html", "content": "<b>no</b>", "option": "no"}])])
+        assert result.returncode != 0 and "is empty" in result.stderr
+
+
 def test_build_rejects_interactive_visual_with_option():
     with TemporaryDirectory() as directory:
         result, _ = build(directory, [item("mock", visuals=[
@@ -112,6 +120,7 @@ if __name__ == "__main__":
     test_build_rejects_empty_queue()
     test_build_rejects_open_item_without_visual()
     test_build_rejects_open_item_without_a_static_picture()
+    test_build_rejects_empty_image()
     test_build_rejects_interactive_visual_with_option()
     test_page()
     print("grill-with-html checks passed.")

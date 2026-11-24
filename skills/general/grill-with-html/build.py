@@ -57,6 +57,7 @@ def inline_images(queue: dict, base: Path) -> None:
         for visual in item.get("visuals") or []:
             if visual["type"] == "image" and not visual["src"].startswith("data:"):
                 path = (base / visual["src"]).expanduser()
+                assert path.stat().st_size, f"item {item['id']!r}: image {visual['src']!r} is empty"
                 mime = mimetypes.guess_type(path.name)[0] or "image/png"
                 visual["src"] = f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"
 
