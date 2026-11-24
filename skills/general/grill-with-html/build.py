@@ -3,6 +3,7 @@
 import base64
 import json
 import mimetypes
+import re
 import sys
 from pathlib import Path
 from urllib.parse import unquote_to_bytes
@@ -53,21 +54,32 @@ def check(queue: dict) -> None:
             f"{where} needs a static html or image visual for option {missing[0]!r}; text, diff and walkthroughs only add to one"
 
 
+def data_url_bytes(url: str) -> bytes:
+    header, _, payload = url.partition(",")
+    data = unquote_to_bytes(payload)
+    if not re.search(r";\x20*base64$", header.strip(" \t\n\f\r"), flags=re.I):
+        return data
+    data = re.sub(rb"[\t\n\f\r ]", b"", data)
+    if len(data) % 4 == 0:
+        data = data.removesuffix(b"=").removesuffix(b"=") if data.endswith(b"==") else data.removesuffix(b"=")
+    if len(data) % 4 == 1 or not re.fullmatch(rb"[A-Za-z0-9+/]*", data):
+        return b""
+    return base64.b64decode(data + b"=" * (-len(data) % 4))
+
+
 def inline_images(queue: dict, base: Path) -> None:
     for item in queue["items"]:
         for visual in item.get("visuals") or []:
             if visual["type"] != "image":
                 continue
-            if not visual["src"].startswith("data:"):
+            if visual["src"].startswith("data:"):
+                data = data_url_bytes(visual["src"])
+            else:
                 path = (base / visual["src"]).expanduser()
+                data = path.read_bytes()
                 mime = mimetypes.guess_type(path.name)[0] or "image/png"
-                visual["src"] = f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"
-            header, _, payload = visual["src"].partition(",")
-            data = unquote_to_bytes(payload)
-            if header.lower().replace(" ", "").endswith(";base64"):
-                data = b"".join(data.split())
-                data = base64.b64decode(data + b"=" * (-len(data) % 4))
-            assert data, f"item {item['id']!r}: an image visual has no image data"
+                visual["src"] = f"data:{mime};base64,{base64.b64encode(data).decode()}"
+            assert data or item.get("settled"), f"item {item['id']!r}: an image visual has no image data or invalid base64"
 
 
 def main() -> None:
