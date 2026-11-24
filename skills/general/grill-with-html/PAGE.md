@@ -67,8 +67,8 @@ more than a handful of things.
 
 ## Visuals
 
-Every open decision has at least one static `image` or `html` visual. `diff`, `text` and
-an interactive walkthrough only add to one. Use the richest type that fits:
+Every option of an open decision has a static `image` or `html` visual with its `option`
+key. `diff`, `text` and an interactive walkthrough only add to those. Use the richest type that fits:
 
 1. `image`: a screenshot or rendered output. `src` is a path relative to the JSON file.
 2. `html`: a small self-contained mock in `content`, shown in a sandboxed frame.

@@ -25,11 +25,9 @@ A decision is a question the user can settle in one read. Each carries:
 - **Options**: two to four mutually exclusive choices, each with its consequence in one
   sentence. Mark the one you recommend. Leave all unmarked only when the choice is taste.
 - **Visual**: a drawing of what each option produces, so the user answers by picking a
-  picture rather than by reading. Every open decision gets at least one `html` or `image`
-  visual; text and diff only add to one. When options differ in what the user would see,
-  experience or end up with, give each its own picture, such as a screen, a timeline of
-  a count, or a flow of the steps that follow. A policy call still gets a picture of
-  where each option leads.
+  picture rather than by reading. Every option gets its own `html` or `image` picture,
+  such as a screen, a timeline of a count, or a flow of the steps that follow; text and
+  diff only add to them. A policy call still gets a picture of where each option leads.
   Draw from the real code, data or output, not from your summary of it. When drawing
   shows a claim of yours is wrong, correct the claim and its evidence.
   When a sequence decides the choice, such as how an interaction feels or how a state

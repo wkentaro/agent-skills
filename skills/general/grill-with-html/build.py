@@ -35,18 +35,21 @@ def check(queue: dict) -> None:
         assert len(keys) == len(set(keys)), f"{where}: option keys must be unique"
         assert sum(bool(option.get("recommended")) for option in options) <= 1, f"{where}: at most one recommended option"
         assert item.get("visuals"), f"{where} needs at least one visual"
-        assert any(visual.get("type") in DRAWN and not visual.get("interactive") for visual in item["visuals"]), \
-            f"{where} needs a static html or image visual; text, diff and walkthroughs only add to one"
         for visual in item["visuals"]:
             assert visual.get("type") in VISUALS, f"{where}: visual type must be one of {sorted(VISUALS)}"
             if visual["type"] == "html":
-                assert visual.get("content"), f"{where}: an html visual needs content"
+                assert str(visual.get("content") or "").strip(), f"{where}: an html visual needs content"
             if visual["type"] == "image":
-                assert visual.get("src"), f"{where}: an image visual needs src"
+                assert str(visual.get("src") or "").strip(), f"{where}: an image visual needs src"
             assert visual.get("option") in (None, *keys), f"{where}: visual option {visual.get('option')!r} is not an option key"
             if visual.get("interactive"):
                 assert visual["type"] == "html", f"{where}: only html visuals can be interactive"
                 assert not visual.get("option"), f"{where}: an interactive visual takes no option key"
+        pictured = {visual.get("option") for visual in item["visuals"]
+                    if visual.get("type") in DRAWN and not visual.get("interactive")}
+        missing = [key for key in keys if key not in pictured]
+        assert not missing, \
+            f"{where} needs a static html or image visual for option {missing[0]!r}; text, diff and walkthroughs only add to one"
 
 
 def inline_images(queue: dict, base: Path) -> None:

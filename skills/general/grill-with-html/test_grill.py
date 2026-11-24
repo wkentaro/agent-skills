@@ -24,7 +24,7 @@ def item(id, **extra):
             "door": "two-way", "blast": "one"}
     if "settled" not in extra:
         base["options"] = [{"key": "yes", "recommended": True}, {"key": "no"}]
-        base["visuals"] = [{"type": "html", "content": "<b>v</b>"}]
+        base["visuals"] = [{"type": "html", "content": f"<b>{key}</b>", "option": key} for key in ("yes", "no")]
     return {**base, **extra}
 
 
@@ -60,7 +60,10 @@ def test_build_rejects_open_item_without_a_static_picture():
             {"type": "text", "content": "v"}, {"type": "diff", "content": "+v"},
             {"type": "html", "content": "<button>Run</button>", "interactive": True}])])
         assert result.returncode != 0 and "needs a static html or image visual" in result.stderr
-        result, _ = build(directory, [item("blank", visuals=[{"type": "html"}])])
+        result, _ = build(directory, [item("half", visuals=[{"type": "html", "content": "<b>y</b>", "option": "yes"}])])
+        assert result.returncode != 0 and "for option 'no'" in result.stderr
+        result, _ = build(directory, [item("blank", visuals=[{"type": "html", "content": "<b>y</b>", "option": "yes"},
+                                                        {"type": "html", "content": "  \n", "option": "no"}])])
         assert result.returncode != 0 and "needs content" in result.stderr
 
 
@@ -77,7 +80,8 @@ def test_page():
         result, html = build(directory, [
             item("settled", settled={"choice": "done"}, visuals=[{"type": "text", "content": "v", "option": "yes"}]),
             item("constructor", summary=["<!-- <script> example source"]),
-            item("noted", visuals=[{"type": "html", "content": "<b>static</b>"},
+            item("noted", visuals=[{"type": "html", "content": "<b>yes</b>", "option": "yes"},
+                                   {"type": "html", "content": "<b>no</b>", "option": "no"},
                                    {"type": "html", "content": "<b>live</b>", "interactive": True}]),
             item("old", settled={"choice": "done"}, options=[{"key": "yes"}, {"key": "no"}],
                  visuals=[{"type": "text", "content": "v", "option": "no"}]),
@@ -97,7 +101,7 @@ console.log(store["queue:t:2"]);
 """).splitlines()
         assert json.loads(out[0]) == ["constructor", "noted", "settled", "old"], "settled items go last"
         assert out[1] == "false", "settled visuals are not choices"
-        assert json.loads(out[2]) == ['sandbox=""', 'sandbox="allow-scripts"'], \
+        assert json.loads(out[2]) == ['sandbox=""', 'sandbox=""', 'sandbox="allow-scripts"'], \
             "only interactive visuals run scripts, and never with allow-same-origin"
         assert json.loads(out[3]) == "queue: t  round: 2\nconstructor: yes\nnoted: ?\n  note: why?", \
             "bulk accept skips note-only items and settled items without options"
