@@ -73,9 +73,11 @@ The user may answer only some decisions. After each set of answers:
 3. Reply to every note that came without a choice. It is a question or a steer: answer
    it with new evidence, or reshape the decision and its options.
 4. Recompute the frontier and ask the next round: the decisions still open, the ones
-   reshaped by a note, the ones the answers unblocked, and the ones the audit found.
+   reshaped by a note, the ones the answers unblocked, and the ones the audit found. When
+   none remain, skip the page and report each held action and what would let it run.
 
-The work is done when every decision is settled and every approved action has run or been
-dropped, or the user says to stop. When neither
+The work is done when every decision is settled and every approved action has run, been
+dropped, or been reported as waiting on something outside the user's answers, or when the
+user says to stop. When neither
 an unanswered question nor an assumption from the audit exists at the start, say so and
 stop.
