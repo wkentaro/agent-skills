@@ -21,7 +21,7 @@ const report = [];
 const frames = CHECK.visuals.map(visual => {
   const frame = document.createElement("iframe");
   frame.setAttribute("sandbox", "allow-scripts");
-  frame.style.cssText = `display: block; inline-size: 100%; border: 0; block-size: ${visual.height}px`;
+  frame.style.cssText = `display: block; inline-size: 100%; border: 0; block-size: ${+visual.height || 320}px`;
   frame.srcdoc = visual.head + CHECK.reporter + visual.content;
   document.body.append(frame);
   return frame;
@@ -31,15 +31,23 @@ addEventListener("message", e => {
   report.push([frames.findIndex(frame => frame.contentWindow === e.source), e.data.message]);
 });
 addEventListener("error", e => report.push([-1, "check page error " + e.message]));
-setTimeout(() => document.querySelector("#report").textContent = "REPORT" + JSON.stringify(report), CHECK.wait);
+CHECK.images.forEach((src, index) => {
+  const image = new Image();
+  image.onload = () => image.naturalWidth || report.push([CHECK.visuals.length + index, "image does not decode"]);
+  image.onerror = () => report.push([CHECK.visuals.length + index, "image does not decode"]);
+  image.src = src;
+});
+Promise.all(frames.map(frame => new Promise(resolve => frame.addEventListener("load", resolve, { once: true }))))
+  .then(() => setTimeout(() => document.querySelector("#report").textContent = "REPORT" + JSON.stringify(report), CHECK.wait));
 </script>"""
 REPORTER = """<script nonce="NONCE">{
 const send = message => parent.postMessage({ token: "NONCE", message }, "*");
 addEventListener("securitypolicyviolation", e => !["inline", "eval", "wasm-eval"].includes(e.blockedURI) && send("load " + e.blockedURI));
 addEventListener("error", e => e.target === window && send("error " + e.message), true);
 addEventListener("unhandledrejection", e => send("error " + e.reason));
+addEventListener("pagehide", () => send("navigates its frame"));
 }</script>"""
-WAIT_MS = 5000
+WAIT_MS = 2000
 BROWSERS = ("chromium", "chromium-browser", "google-chrome", "google-chrome-stable")
 
 
@@ -101,10 +109,12 @@ def inline_images(queue: dict, base: Path) -> None:
 def check_offline(queue: dict) -> str:
     html = [(item["id"], visual) for item in queue["items"] for visual in item.get("visuals") or []
             if visual["type"] == "html"]
+    images = [(item["id"], visual) for item in queue["items"] for visual in item.get("visuals") or []
+              if visual["type"] == "image"]
     browser = next(filter(None, map(shutil.which, BROWSERS)), None)
     if not browser:
         return "NOT CHECKED OFFLINE: no Chromium found"
-    if not html:
+    if not html and not images:
         return "loads offline"
     nonce = secrets.token_hex(8)
 
@@ -117,7 +127,8 @@ def check_offline(queue: dict) -> str:
         "token": nonce,
         "wait": WAIT_MS,
         "reporter": REPORTER.replace("NONCE", nonce),
-        "visuals": [{"head": head(visual), "content": visual["content"], "height": int(visual.get("height") or 320)}
+        "images": [visual["src"] for _, visual in images],
+        "visuals": [{"head": head(visual), "content": visual["content"], "height": visual.get("height")}
                     for _, visual in html],
     }
     with TemporaryDirectory() as directory:
@@ -134,8 +145,9 @@ def check_offline(queue: dict) -> str:
         f"browser check did not run: {browser} exited {result.returncode}: {result.stderr.strip()[-300:]}"
     report = json.loads(html_unescape(result.stdout.split("REPORT", 1)[1].split("</pre>", 1)[0]))
     for index, message in report:
-        where = html[index][0] if 0 <= index < len(html) else "?"
-        assert False, f"item {where!r}: html visual fails offline: {message}; inline it, since a shared page loads no URL"
+        visuals = html + images
+        where, visual = visuals[index] if 0 <= index < len(visuals) else ("?", {"type": "page"})
+        assert False, f"item {where!r}: {visual['type']} visual fails offline: {message}; inline it, since a shared page loads no URL"
     return "loads offline"
 
 
@@ -143,8 +155,8 @@ def main() -> None:
     source, target = Path(sys.argv[1]), Path(sys.argv[2])
     queue = json.loads(source.read_text())
     check(queue)
-    offline = check_offline(queue)
     inline_images(queue, source.parent)
+    offline = check_offline(queue)
     template = (Path(__file__).parent / "template.html").read_text()
     marker = "/*__QUEUE__*/null"
     assert template.count(marker) == 1

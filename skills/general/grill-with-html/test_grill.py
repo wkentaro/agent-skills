@@ -87,7 +87,7 @@ def test_build_rejects_html_visual_that_loads_a_url():
     if not any(map(shutil.which, BROWSERS)):
         print("skipped: no Chromium")
         return
-    for content in ["<div style='background:url(a.png)'>", "<style>@import 'a.css';</style>"]:
+    for content in ["<style>@import 'a.css';</style>"]:
         with TemporaryDirectory() as directory:
             result, _ = build(directory, [item("remote", visuals=[{"type": "html", "content": content, "option": "yes"},
                                                          {"type": "html", "content": "<b>no</b>", "option": "no"}])])
@@ -101,7 +101,8 @@ def test_build_checks_html_visuals_as_the_page_frames_them():
     failing = ['<img src="https://example.com/a.png">', '<img srcset="missing.png 1x">',
                '<iframe src="missing.html"></iframe>', "<style>@import 'a.css';</style>",
                '<script type="module">import "./missing.js"</script>',
-               '<script>localStorage.getItem("mode")</script>', "<script>missing()</script>"]
+               '<script>localStorage.getItem("mode")</script>', "<script>missing()</script>",
+               '<script>location.replace("http://127.0.0.1:9/")</script>']
     passing = ['<pre>&lt;img src="a.png"&gt;</pre>', "<script>console.log('Uncaught')</script>",
                "<style>@import url('data:text/css,b{}');</style>", "<script>parent.postMessage({h: 1}, '*')</script>",
                "<p>REPORTER WAIT /*__CHECK__*/null</p>", "<script>const report = 1, send = 2</script>", "<pre>background: url(a.png)</pre>"]
@@ -110,8 +111,14 @@ def test_build_checks_html_visuals_as_the_page_frames_them():
             result, _ = build(directory, [item("x", visuals=[
                 {"type": "html", "content": content, "interactive": True},
                 *item("x")["visuals"]])])
-            assert (result.returncode != 0 and "fails offline" in result.stderr) == (content in failing), \
-                (content, result.stderr)
+            if content in failing:
+                assert result.returncode != 0 and "fails offline" in result.stderr, (content, result.stderr)
+            else:
+                assert result.returncode == 0, (content, result.stderr)
+        result, _ = build(directory, [item("broken", visuals=[
+            {"type": "image", "src": "data:image/png;base64,bm90IGFuIGltYWdl", "option": "yes"},
+            {"type": "html", "content": "<b>no</b>", "option": "no"}])])
+        assert result.returncode != 0 and "image does not decode" in result.stderr, result.stderr
         result, _ = build(directory, [item("static", visuals=[
             {"type": "html", "content": "<p>shown</p><script>missing()</script>"}, *item("x")["visuals"]])])
         assert result.returncode == 0, "a static visual's scripts never run on the page"

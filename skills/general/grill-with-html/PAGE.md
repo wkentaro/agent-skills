@@ -8,11 +8,12 @@ directory.
 python3 <this skill's directory>/build.py queue.json round-1.html
 ```
 
-`build.py` checks the JSON, inlines every image, and checks that the page works offline:
-it loads every `html` visual in headless Chromium, in the sandboxed frame the page uses,
-and fails on any URL the visual loads or any script error as it opens. The round is
-ready to share when it exits without an assertion error and prints `loads offline`. When
-it prints `NOT CHECKED OFFLINE`, install Chromium and build again.
+`build.py` checks the JSON, inlines every image, and runs an offline smoke check in
+headless Chromium with the network blocked: every image must decode, and every `html`
+visual, opened in the sandboxed frame the page uses, must load no URL, navigate nowhere
+and throw no error as it opens. It does not click through a walkthrough. The round is
+ready to share when the build exits without an assertion error and prints `loads
+offline`. When it prints `NOT CHECKED OFFLINE`, install Chromium and build again.
 
 ## Queue file
 
