@@ -101,7 +101,7 @@ def test_build_rejects_html_visual_that_loads_a_url():
              '<svg><rect fill="url(paints.svg#fade)"/></svg>', '<link rel="preload" as="image" imagesrcset="head.png 1x">',
              '<img srcset="data:image/gif;base64,AA 1x,data:image/gif;base64,AA, large.png 2x">',
              '<script>fetch ("https://example.com/data.json")</script>', '<script>window.fetch("data.json")</script>',
-             '<svg><image xlink:href="map.png"/></svg>',
+             '<svg><image xlink:href="map.png"/></svg>', '<object data="chart.svg"></object>',
              '<script type="module">export { scale } from "https://esm.sh/d3";</script>']
     shows = ['<pre>&lt;img src="shot.png"&gt; url(bg.png) https://example.com</pre>',
              '<img src="data:image/png;base64,AA"><svg><use href="#dot"/></svg>',
@@ -109,16 +109,17 @@ def test_build_rejects_html_visual_that_loads_a_url():
              '<a href="https://example.com">source</a>', '<svg><rect fill="url(#fade)"/></svg>',
              '<style>.a { background: image-set("data:image/gif;base64,AA" type("image/gif") 1x) }</style>',
              '<img srcset=",data:image/gif;base64,AA 1x,,data:image/gif;base64,AA 2x">',
-             '<svg><a xlink:href="https://example.com"><text>Docs</text></a></svg>', '<script>api.fetch("/api/tasks")</script>']
+             '<svg><a xlink:href="https://example.com"><text>Docs</text></a></svg>', '<script>api.fetch("/api/tasks")</script>',
+             '<demo-chart data="[1,2]"></demo-chart>']
     with TemporaryDirectory() as directory:
-        for content in loads:
-            result, _ = build(directory, [item("remote", settled={"choice": "done"},
-                                                visuals=[{"type": "html", "content": content}])])
-            assert result.returncode != 0 and "an html visual loads" in result.stderr, content
-        for content in shows:
-            result, _ = build(directory, [item("local", visuals=[{"type": "html", "content": content, "option": "yes"},
-                                                                 {"type": "html", "content": "<b>no</b>", "option": "no"}])])
-            assert result.returncode == 0, (content, result.stderr)
+        for content in loads + shows:
+            result, _ = build(directory, [item("x", settled={"choice": "done"},
+                                               visuals=[{"type": "html", "content": content, "interactive": True}])])
+            assert (result.returncode == 0) == (content in shows), (content, result.stderr)
+        result, _ = build(directory, [item("snapshot", visuals=[
+            {"type": "html", "content": '<script src="demo.js"></script><b>yes</b>', "option": "yes"},
+            {"type": "html", "content": "<b>no</b>", "option": "no"}])])
+        assert result.returncode == 0, ("a static visual runs no script", result.stderr)
 
 
 def test_page():

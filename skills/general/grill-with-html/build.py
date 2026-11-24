@@ -12,7 +12,7 @@ LEVELS = {"ran", "seen", "read", "reported", "claimed"}
 VISUALS = {"text", "diff", "image", "html"}
 DRAWN = {"image", "html"}
 LOCAL = ("data:", "blob:", "#", "about:", "javascript:")
-URL_ATTRIBUTES = {"src", "poster", "data", "background"}
+URL_ATTRIBUTES = {"src", "poster", "background"}
 HREF_TAGS = {"link", "image", "use", "feimage"}
 PAINT_ATTRIBUTES = {"fill", "stroke", "filter", "clip-path", "mask", "marker-start", "marker-mid", "marker-end"}
 
@@ -43,21 +43,25 @@ def srcset_urls(srcset: str) -> list[str]:
 
 
 class LoadedUrls(HTMLParser):
-    def __init__(self):
+    def __init__(self, scripts: bool):
         super().__init__()
-        self.urls, self.raw = [], None
+        self.scripts, self.urls, self.raw = scripts, [], None
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == "script" and not self.scripts:
+            return
         self.raw = tag if tag in ("style", "script") else None
         self.urls += [value for name, value in attrs.items() if name in URL_ATTRIBUTES and value]
+        if tag == "object":
+            self.urls.append(attrs.get("data") or "")
         if tag in HREF_TAGS:
             self.urls += [attrs.get("href") or "", attrs.get("xlink:href") or ""]
         for name in ("srcset", "imagesrcset"):
             self.urls += srcset_urls(attrs.get(name) or "")
         for name in ("style", *PAINT_ATTRIBUTES):
             self.urls += css_urls(attrs.get(name) or "")
-        self.urls += remote_urls(attrs.get("srcdoc") or "")
+        self.urls += remote_urls(attrs.get("srcdoc") or "", self.scripts)
         if tag == "meta" and (attrs.get("http-equiv") or "").lower() == "refresh":
             self.urls += re.findall(r"url\s*=\s*['\"]?([^'\"\s;]+)", attrs.get("content") or "", flags=re.I)
 
@@ -72,8 +76,8 @@ class LoadedUrls(HTMLParser):
             self.urls += [m[2] or m[4] for m in re.finditer(r"\b(?:import|export)\s*(?:\(\s*|[\w$*{}\s,]+?\bfrom\s*)?(['\"])(.*?)\1|(?<![\w$.])(?:(?:window|self|globalThis)\.)?fetch\s*\(\s*(['\"`])(.*?)\3", data)]
 
 
-def remote_urls(content: str) -> list[str]:
-    parser = LoadedUrls()
+def remote_urls(content: str, scripts: bool) -> list[str]:
+    parser = LoadedUrls(scripts)
     parser.feed(content)
     parser.close()
     return [url for url in parser.urls if url.strip() and not url.strip().lower().startswith(LOCAL)]
@@ -93,7 +97,7 @@ def check(queue: dict) -> None:
         assert item["door"] in ("two-way", "one-way"), f"{where}: door is two-way or one-way"
         for visual in item.get("visuals") or []:
             if visual.get("type") == "html" and isinstance(visual.get("content"), str):
-                remote = remote_urls(visual["content"])
+                remote = remote_urls(visual["content"], bool(visual.get("interactive")))
                 assert not remote, f"{where}: an html visual loads {remote[0]!r}; inline it, since the shared page loads no URL"
         for evidence in item["evidence"]:
             assert evidence.get("level") in LEVELS, f"{where}: evidence level must be one of {sorted(LEVELS)}"
