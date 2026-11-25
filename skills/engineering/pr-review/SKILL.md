@@ -23,6 +23,8 @@ Answer five questions in order, each with one line of evidence:
    architecture change that lands first and shrinks or removes this change.
 4. **Correct**: does it solve the problem without breaking a caller or edge
    case, and do the tests it adds for changed behavior fail on the base branch?
+   When the caller defines a blocker, only a blocker or such a test passing
+   on the base branch fails Correct, and any other defect is a nitpick.
 5. **Minimal**: is every changed line needed, with nothing that existing code already does?
 
 Take the first failure's verdict:
@@ -34,5 +36,5 @@ Take the first failure's verdict:
 | Right approach, Correct, or Minimal | `recommend-revise` |
 | Nothing | `recommend-merge` |
 
-Report to the caller the verdict, the five answers, and for `revise` the
-specific changes needed. The caller decides what reaches the PR.
+Report to the caller the verdict, the five answers, every nitpick, and for
+`revise` the specific changes needed. The caller decides what reaches the PR.
