@@ -23,8 +23,23 @@ Answer five questions in order, each with one line of evidence:
    architecture change that lands first and shrinks or removes this change.
 4. **Correct**: does it solve the problem without breaking a caller or edge
    case, and do the tests it adds for changed behavior fail on the base branch?
+   Drive the PR's main journey end to end at default settings, except those
+   the journey needs, as far as the caller permits its setup and side
+   effects, and report what you couldn't run.
    When the caller defines a blocker, only a blocker or such a test passing
    on the base branch fails Correct, and any other defect is a nitpick.
+   By default, a blocker comes with a reproduction: a test or journey that
+   fails on the head, run by you, or written for the caller to run when you
+   can't run it. Also by default, these are nitpicks:
+   - a blocker claim without a reproduction;
+   - a failure the base shows the same way, in behavior the PR does not set
+     out to change;
+   - a missing test, doc, or comment that neither the PR's title or
+     description, the linked issue, the repository's rules, nor a spec it
+     implements requires.
+
+   Where the caller's blocker definition explicitly covers one of these
+   cases, it overrides the default.
 5. **Minimal**: is every changed line needed, with nothing that existing code already does?
 
 Take the first failure's verdict:
