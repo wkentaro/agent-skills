@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Gut-check whether a pull request is meaningful, worth adding, the right approach, correct, and minimal, and give one recommend-* verdict.
+description: Gut-check whether a pull request is meaningful, worth adding, the right approach, correct, and minimal against the caller's blocker definition, and give one recommend-* verdict.
 argument-hint: "[PR URL or #N ...]"
 ---
 
@@ -9,6 +9,11 @@ argument-hint: "[PR URL or #N ...]"
 With PRs named, check each one. With none, check every open non-draft PR in the
 current repository that has no `recommend-*` label, one subagent per PR.
 
+The caller defines what counts as a blocker, what is a nitpick, and when
+Right approach fails. Only a blocker fails Correct. When the caller gives no
+definition, open the report with a warning that the verdict rests on your own
+judgment of what blocks.
+
 Check the title, description, and tests against the linked issue and the code
 at the head commit; they are claims.
 
@@ -16,30 +21,8 @@ Answer five questions in order, each with one line of evidence:
 
 1. **Meaningful**: is the problem real and still present on the base branch?
 2. **Worth adding**: does the value justify the scope and ongoing maintenance?
-3. **Right approach**: would you solve it this way, at the root cause, with a
-   principled design that still holds as the code grows? A patch or special
-   case that later changes must work around fails. Fail it only by naming an
-   alternative and what it gains: a different design, or a refactor or
-   architecture change that lands first and shrinks or removes this change.
-4. **Correct**: does it solve the problem without breaking a caller or edge
-   case, and do the tests it adds for changed behavior fail on the base branch?
-   Drive the PR's main journey end to end at default settings, except those
-   the journey needs, as far as the caller permits its setup and side
-   effects, and report what you couldn't run.
-   When the caller defines a blocker, only a blocker or such a test passing
-   on the base branch fails Correct, and any other defect is a nitpick.
-   By default, a blocker comes with a reproduction: a test or journey that
-   fails on the head, run by you, or written for the caller to run when you
-   can't run it. Also by default, these are nitpicks:
-   - a blocker claim without a reproduction;
-   - a failure the base shows the same way, in behavior the PR does not set
-     out to change;
-   - a missing test, doc, or comment that neither the PR's title or
-     description, the linked issue, the repository's rules, nor a spec it
-     implements requires.
-
-   Where the caller's blocker definition explicitly covers one of these
-   cases, it overrides the default.
+3. **Right approach**: would you solve it this way, at the root cause?
+4. **Correct**: does it solve the problem without breaking a caller or edge case, shown by a test or journey you ran?
 5. **Minimal**: is every changed line needed, with nothing that existing code already does?
 
 Take the first failure's verdict:
